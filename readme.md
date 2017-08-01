@@ -1,6 +1,5 @@
 # express webpack build
 
-
 > install
 
   * nmp install 或 tnpm install
@@ -28,5 +27,3 @@
 
   * 通过私钥文件和CSR证书签名生成证书文件
     openssl x509 -req -days 365 -in csr.pem -signkey private.key -out cert.crt
-
-![](http://mat1.gtimg.com/www/images/qq2012/qqlogo_1x.png)
