@@ -1,0 +1,55 @@
+@import "./config.sass"
+body
+  margin: 0
+  background: #fff
+  font-size: 14px
+  color: #000
+h1, h2, h3, h4, h5, h6
+  margin: 0
+  padding: 0
+  font-size: 14px
+div, form, img, ul, ol, li, dl, dt, dd
+  margin: 0
+  padding: 0
+  border: 0
+li
+  list-style: none
+  list-style-position: outside
+
+button, input, select, textarea
+  vertical-align: middle
+  outline: none
+  -webkit-tap-highlight-color: rgba(255, 0, 0, 0)
+  // -webkit-appearance: none
+input
+  &[type="radio"]
+    -webkit-appearance: radio
+  &[type="checkbox"]
+    -webkit-appearance: checkbox
+select
+  background: transparent
+input,
+textarea
+  &::-moz-placeholder
+    color: #ccc
+    opacity: 1
+  &::-ms-input-placeholder
+    color: #ccc
+  &::-webkit-input-placeholder
+    color: #ccc
+
+.hs
+  display: none
+a
+  text-decoration: none
+  &:link
+    color: $linkColor
+  &:visited
+    color: $linkColor
+  &:hover
+    color: #f40
+    text-decoration: underline
+  &:active,
+  &:focus
+    color: #039
+
