@@ -6,10 +6,10 @@ const noop = function() {}
 
 class ControllerClass {
   constructor() {
-    this.test()
   }
 
   test() {
+    console.log('001')
   }
 }
 

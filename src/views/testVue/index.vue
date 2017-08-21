@@ -55,7 +55,7 @@
     dl
       dt mysql query
       dd
-        //- button(@click="dbinit") dbinit
+        button(@click="dbinit") dbinit
         button(@click="redisSet") redis set
         button(@click="add") add
         button(@click="delById") delById

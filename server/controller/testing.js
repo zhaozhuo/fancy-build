@@ -1,15 +1,14 @@
 const fs = require('fs');
 const express = require('express')
 const router = express.Router()
-const redis = require('redis')
-const crypto = require("crypto");
 
+const crypto = require("crypto");
+const redis = require('redis')
 const redisClient = require('../redis')
 const logger = require('../logger')('script')
 
 const testing = require('../model/testing')
 const ControllerClass = require('../class/controller.class')
-
 
 // https://github.com/expressjs/multer
 const multer = require('multer')
@@ -33,184 +32,145 @@ class Controller extends ControllerClass {
   }
 
   dbInit(req, response) {
-    testing.init(true, resolve => {})
+    testing.init(true, resolve => { })
     response.send({
       code: '100',
       msg: 'success'
     })
   }
 
-  add(req, response) {
-    let data = req.body; // req.query
-    logger.info('adddd')
-
-    testing.save({
-      data: {
-        name: 'John891' + Math.floor(Math.random() * 1000),
-        pid: Math.floor(Math.random() * 10),
-        age: Math.floor(Math.random() * 100),
-        // where: {
-        //   id: 11,
-        // }
-      },
-      success(res) {
-        response.send({
-          code: '100',
-          msg: 'success'
-        })
-      },
-      error(err) {
-        response.send({
-          code: '000',
-          msg: err
-        })
-      },
-    })
-  }
-
-  delById(req, response) {
-    let data = req.body;
-    if (!data.id) {
-      return response.send({
-        code: '000',
-        msg: 'id required'
-      })
-    }
-    testing.delById({
-      data: {
-        id: data.id,
-      },
-      success(data) {
-        response.send({
-          code: '100',
-          msg: 'success'
-        })
-      },
-      error(err) {
-        response.send({
-          code: '000',
-          msg: err
-        })
-      },
-    })
-  }
-
-  getById(req, response) {
-    let data = req.body;
-    if (!data.id) {
-      return response.send({
-        code: '000',
-        msg: 'id required'
-      })
-    }
-    testing.getById({
-      data: {
-        id: data.id,
-      },
-      success(data) {
-        response.send({
-          code: '100',
-          data: data,
-          msg: 'success'
-        })
-      },
-      error(err) {
-        response.send({
-          code: '000',
-          msg: err
-        })
-      },
-    })
-  }
-
-  getList(req, response) {
-    let data = req.body;
-    testing.getList({
-      data,
-      success(data) {
-        response.send({
-          code: '100',
-          data: data,
-          msg: 'success'
-        })
-      },
-      error(err) {
-        response.send({
-          code: '000',
-          msg: err
-        })
-      },
-    })
-  }
-
-  getCount(req, response) {
-    let data = req.body;
-    testing.getCount({
-      data,
-      success(data) {
-        response.send({
-          code: '100',
-          data: data,
-          msg: 'success'
-        })
-      },
-      error(err) {
-        response.send({
-          code: '000',
-          msg: err
-        })
-      },
-    })
-  }
-
-  delByWhere(req, response) {
-    let data = req.body;
-    console.log(data)
-    testing.delByWhere({
-      data,
-      success(data) {
-        response.send({
-          code: '100',
-          msg: 'success'
-        })
-      },
-      error(err) {
-        response.send({
-          code: '000',
-          msg: err
-        })
-      },
-    })
-  }
-
-  getOne(req, response) {
-      let data = req.body;
-      testing.getOne({
-        data,
-        success(data) {
-          response.send({
-            data,
-            code: '100',
-            data: data,
-            msg: 'success'
-          })
+  async add(req, response) {
+    super.test()
+    let res = { code: '000', msg: 'error' }
+    let data = req.body
+    try {
+      let row = await testing.save({
+        data: {
+          name: 'John891' + Math.floor(Math.random() * 1000),
+          pid: Math.floor(Math.random() * 10),
+          age: Math.floor(Math.random() * 100),
+          // where: {
+          //   id: 11,
+          // }
         },
-        error(err) {
-          response.send({
-            code: '000',
-            msg: err
-          })
-        },
-      })
+      });
+      res = {
+        data: row,
+        code: '100',
+      }
+    } catch (err) {
+      res.msg = err
     }
-    // =========================== others
+    response.send(res)
+  }
+
+  async delById(req, response) {
+    let res = { code: '000', msg: 'error' }
+    let data = req.body
+
+    try {
+      await testing.delById(data.id)
+      res = {
+        code: '100',
+        msg: 'success'
+      }
+    } catch (err) {
+      res.msg = err
+    }
+    response.send(res)
+  }
+
+  async getById(req, response) {
+    let res = { code: '000', msg: 'error' }
+    let data = req.body
+
+    try {
+      let row = await testing.getById(data.id)
+      res = {
+        code: '100',
+        data: row,
+        msg: 'success'
+      }
+    } catch (err) {
+      res.msg = err
+    }
+    response.send(res)
+  }
+
+  async getList(req, response) {
+    let res = { code: '000', msg: 'error' }
+    let data = req.body
+
+    try {
+      let list = await testing.getList(data)
+      res = {
+        code: '100',
+        data: list,
+        msg: 'success'
+      }
+    } catch (err) {
+      res.msg = err
+    }
+    response.send(res)
+  }
+
+  async getCount(req, response) {
+    let res = { code: '000', msg: 'error' }
+    let data = req.body
+
+    try {
+      let count = await testing.getCount(data)
+      res = {
+        code: '100',
+        data: count,
+        msg: 'success'
+      }
+    } catch (err) {
+      res.msg = err
+    }
+    response.send(res)
+  }
+
+  async delByWhere(req, response) {
+    let res = { code: '000', msg: 'error' }
+    let data = req.body
+
+    try {
+      await testing.delByWhere(data)
+      res = {
+        code: '100',
+        msg: 'success'
+      }
+    } catch (err) {
+      res.msg = err
+    }
+    response.send(res)
+  }
+
+  async getOne(req, response) {
+    let res = { code: '000', msg: 'error' }
+    let data = req.body
+
+    try {
+      let row = await testing.getOne(data)
+      res = {
+        code: '100',
+        data: row,
+        msg: 'success'
+      }
+    } catch (err) {
+      res.msg = err
+    }
+    response.send(res)
+  }
+  // =========================== others
 
   markdown2pdf(req, response) {
     const path = require('path')
     const markdownpdf = require("markdown-pdf")
     const root = path.resolve(__dirname, '../../')
-    markdownpdf().from.string('wegweg').to(`${root}/dist/test1.pdf`, function(err, res) {});
-    markdownpdf().from(`${root}/readme.md`).to(`${root}/dist/test2.pdf`, function(err, res) {
+    markdownpdf().from.string('wegweg').to(`${root}/dist/test1.pdf`, function (err, res) { });
+    markdownpdf().from(`${root}/readme.md`).to(`${root}/dist/test2.pdf`, function (err, res) {
       response.send({
         code: '100',
         msg: 'success'
@@ -240,7 +200,7 @@ class Controller extends ControllerClass {
 
   redisSet(req, response) {
     redisClient.set('wefwef', Date.now(), 'EX', 3600 * 2, redis.print);
-    redisClient.get("wefwef", function(err, reply) {
+    redisClient.get("wefwef", function (err, reply) {
       // reply is null when the key is missing
       response.send({
         code: '100',

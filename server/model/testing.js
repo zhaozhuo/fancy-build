@@ -3,6 +3,8 @@ const db = require('../sequelize')
 const ModelClass = require('../class/model.class')
 const table = path.parse(__filename).name
 
+console.log(table)
+
 const definition = db.define(table, {
   name: {
     type: db.Sequelize.STRING(50),
@@ -24,7 +26,7 @@ const definition = db.define(table, {
   birthday: {
     type: db.Sequelize.DATE,
     allowNull: false,
-    defaultValue: 0,
+    defaultValue: db.Sequelize.NOW(),
   },
   version: {
     type: db.Sequelize.INTEGER(10).UNSIGNED,

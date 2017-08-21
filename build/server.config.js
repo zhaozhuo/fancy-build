@@ -17,7 +17,7 @@ log4js.configure({
       type: 'console'
     },
     access: {
-      type: 'DateFile',
+      type: 'dateFile',
       filename: `${root}/logs/access`,
       pattern: '.yyyyMMdd.log',
       alwaysIncludePattern: true,
@@ -25,14 +25,14 @@ log4js.configure({
       // backups: 1,
     },
     sql: {
-      type: 'DateFile',
+      type: 'dateFile',
       filename: `${root}/logs/sql`,
       pattern: '.yyyyMMdd.log',
       alwaysIncludePattern: true,
       maxLogSize: 1024,
     },
     script: {
-      type: 'DateFile',
+      type: 'dateFile',
       filename: `${root}/logs/script`,
       pattern: '.yyyyMMdd.log',
       alwaysIncludePattern: true,
@@ -56,9 +56,7 @@ log4js.configure({
   replaceConsole: true,
 });
 
-function logger(name) {
-  return log4js.getLogger(name)
-}
+const logger = category => log4js.getLogger(category);
 
 module.exports = {
   dev: {

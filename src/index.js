@@ -3,7 +3,6 @@ require('./css.sass');
 require('script!zepto')
 import Vue from 'vue';
 
-
 new Vue({
   el: '.viewport',
   data: {
