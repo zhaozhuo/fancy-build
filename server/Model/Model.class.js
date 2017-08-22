@@ -1,20 +1,19 @@
 const DEBUG = process.env.NODE_ENV === 'development'
-const noop = function () { }
 
 class ModelClass {
   constructor(db) {
     this.model = db
   }
 
-  async init(force, resolve, reject) {
-    try {
-      let res = this.model.sync({
-        force: !!force
-      })
-      resolve && resolve(res.dataValues)
-    } catch (err) {
-      reject && reject(DEBUG ? err : err.original.code)
-    }
+  tableCreate(force = false) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let res = this.model.sync({ force })
+        resolve(res.dataValues)
+      } catch (err) {
+        reject(DEBUG ? err : err.original.code)
+      }
+    })
   }
 
   save(param = {}) {

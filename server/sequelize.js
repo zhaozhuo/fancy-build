@@ -27,8 +27,10 @@ module.exports = new ApplicationMysql()
 // https://segmentfault.com/a/1190000003987871
 // https://itbilu.com/nodejs/npm/V1PExztfb.html
 
+// ORM VS
 // Comparing bookshelf vs. objection vs. orm vs. sequelize vs. sql-bricks
 // https://npmcompare.com/compare/bookshelf,objection,orm,sequelize,sql-bricks
 
+// logger VS
 // Comparing bunyan vs. log4js vs. morgan vs. scribe vs. winston
 // https://npmcompare.com/compare/bunyan,log4js,morgan,scribe,winston

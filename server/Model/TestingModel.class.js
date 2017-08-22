@@ -1,9 +1,7 @@
 const path = require('path')
 const db = require('../sequelize')
-const ModelClass = require('../class/model.class')
+const ModelClass = require('./Model.class')
 const table = path.parse(__filename).name
-
-console.log(table)
 
 const definition = db.define(table, {
   name: {

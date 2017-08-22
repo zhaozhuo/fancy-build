@@ -1,15 +1,13 @@
-const fs = require('fs');
+// required
 const express = require('express')
 const router = express.Router()
+const logger = require('../logger')('script')
 
+// by request
+const fs = require('fs');
 const crypto = require("crypto");
 const redis = require('redis')
 const redisClient = require('../redis')
-const logger = require('../logger')('script')
-
-const testing = require('../model/testing')
-const ControllerClass = require('../class/controller.class')
-
 // https://github.com/expressjs/multer
 const multer = require('multer')
 const upload = multer({
@@ -26,25 +24,34 @@ const cpUpload = upload.fields([
   },
 ]);
 
-class Controller extends ControllerClass {
+const Testing = require('../Model/TestingModel.class')
+class Plugin extends require('./Controller.class') {
   constructor() {
     super()
+    this.add = this.add.bind(this)
   }
 
-  dbInit(req, response) {
-    testing.init(true, resolve => { })
-    response.send({
-      code: '100',
-      msg: 'success'
-    })
+  async dbInit(req, response) {
+    try {
+      await Testing.tableCreate(false)
+      response.send({
+        code: '100',
+        msg: 'success'
+      })
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   async add(req, response) {
-    super.test()
     let res = { code: '000', msg: 'error' }
     let data = req.body
     try {
-      let row = await testing.save({
+
+      await this.getUserInfo();
+      console.log(this.user)
+
+      let row = await Testing.save({
         data: {
           name: 'John891' + Math.floor(Math.random() * 1000),
           pid: Math.floor(Math.random() * 10),
@@ -69,7 +76,7 @@ class Controller extends ControllerClass {
     let data = req.body
 
     try {
-      await testing.delById(data.id)
+      await Testing.delById(data.id)
       res = {
         code: '100',
         msg: 'success'
@@ -85,7 +92,7 @@ class Controller extends ControllerClass {
     let data = req.body
 
     try {
-      let row = await testing.getById(data.id)
+      let row = await Testing.getById(data.id)
       res = {
         code: '100',
         data: row,
@@ -102,7 +109,7 @@ class Controller extends ControllerClass {
     let data = req.body
 
     try {
-      let list = await testing.getList(data)
+      let list = await Testing.getList(data)
       res = {
         code: '100',
         data: list,
@@ -119,7 +126,7 @@ class Controller extends ControllerClass {
     let data = req.body
 
     try {
-      let count = await testing.getCount(data)
+      let count = await Testing.getCount(data)
       res = {
         code: '100',
         data: count,
@@ -136,7 +143,7 @@ class Controller extends ControllerClass {
     let data = req.body
 
     try {
-      await testing.delByWhere(data)
+      await Testing.delByWhere(data)
       res = {
         code: '100',
         msg: 'success'
@@ -152,7 +159,7 @@ class Controller extends ControllerClass {
     let data = req.body
 
     try {
-      let row = await testing.getOne(data)
+      let row = await Testing.getOne(data)
       res = {
         code: '100',
         data: row,
@@ -335,13 +342,7 @@ class Controller extends ControllerClass {
   }
 }
 
-
-const App = new Controller()
-
-router.post('/aesCrypto', App.aesCrypto)
-
-router.post('/upload', cpUpload, App.upload)
-router.post('/uploadBase64', App.uploadBase64)
+const App = new Plugin()
 
 router.post('/redisSet', App.redisSet)
 router.post('/dbinit', App.dbInit)
@@ -355,5 +356,8 @@ router.post('/getCount', App.getCount)
 router.post('/markdown2pdf', App.markdown2pdf)
 router.post('/serverCookie', App.serverCookie)
 router.get('/jsonpdata', App.jsonpdata)
+router.post('/aesCrypto', App.aesCrypto)
+router.post('/upload', cpUpload, App.upload)
+router.post('/uploadBase64', App.uploadBase64)
 
 module.exports = router;
