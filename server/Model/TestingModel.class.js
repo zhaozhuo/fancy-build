@@ -1,9 +1,9 @@
 const path = require('path')
 const db = require('../sequelize')
 const ModelClass = require('./Model.class')
-const table = path.parse(__filename).name
+const table = 'testing'
 
-const definition = db.define(table, {
+const definition = db.define(`${db.options.prefix}testing`, {
   name: {
     type: db.Sequelize.STRING(50),
     allowNull: false,
@@ -32,24 +32,24 @@ const definition = db.define(table, {
     defaultValue: 0,
   }
 }, {
-  // http://docs.sequelizejs.com/manual/tutorial/models-definition.html#indexes
-  indexes: [
-    {
-      unique: false,
-      fields: ['pid']
-    },
-  ],
-  engine: 'InnoDB', // InnoDB MYISAM
-  comment: 'user table',
-  freezeTableName: true, // alter the model name to get the table name
-  timestamps: true, //Adds createdAt and updatedAt timestamps to the model
-  createdAt: 'ctime', // alias
-  updatedAt: 'utime', // alias
-  hooks: {
-    beforeValidate(obj) {
-    },
-  }
-})
+    // http://docs.sequelizejs.com/manual/tutorial/models-definition.html#indexes
+    indexes: [
+      {
+        unique: false,
+        fields: ['pid']
+      },
+    ],
+    engine: 'InnoDB', // InnoDB MYISAM
+    comment: 'user table',
+    freezeTableName: true, // alter the model name to get the table name
+    timestamps: true, //Adds createdAt and updatedAt timestamps to the model
+    createdAt: 'ctime', // alias
+    updatedAt: 'utime', // alias
+    hooks: {
+      beforeValidate(obj) {
+      },
+    }
+  })
 
 class Model extends ModelClass {
   constructor(db) {

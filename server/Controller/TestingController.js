@@ -33,7 +33,7 @@ class Plugin extends require('./Controller.class') {
 
   async dbInit(req, response) {
     try {
-      await Testing.tableCreate(false)
+      await Testing.tableCreate(true)
       response.send({
         code: '100',
         msg: 'success'

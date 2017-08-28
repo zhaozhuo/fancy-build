@@ -70,6 +70,7 @@ module.exports = {
       database: 'myapp',
       username: 'root',
       password: 'root',
+      prefix: 'fb_',
     },
     https: {
       port: 5252,
@@ -93,6 +94,7 @@ module.exports = {
       database: 'myapp',
       username: 'root',
       password: 'root',
+      prefix: 'fb_',
     },
     https: {
       port: 8282,
