@@ -2,17 +2,18 @@
 const express = require('express')
 const router = express.Router()
 const logger = require('../logger')('script')
+const config = require('../config')
+const DEBUG = process.env.NODE_ENV === 'development'
 
-// by request
+// test
 const fs = require('fs');
 const crypto = require("crypto");
 const redis = require('redis')
 const redisClient = require('../redis')
-// https://github.com/expressjs/multer
+
+// upload
 const multer = require('multer')
-const upload = multer({
-  dest: 'upload.temp/'
-});
+const upload = multer({ dest: config.upload.temp })
 const cpUpload = upload.fields([
   {
     name: 'avatar',
@@ -24,247 +25,161 @@ const cpUpload = upload.fields([
   },
 ]);
 
-const Testing = require('../Model/TestingModel.class')
-class Plugin extends require('./Controller.class') {
-  constructor() {
+// model
+const testModel = require('../Model/TestingModel.class')
+
+// controller
+class Application extends require('./Controller.class') {
+
+  constructor(req, response) {
     super()
-    this.add = this.add.bind(this)
+    this.req = req
+    this.post = req.body || {}
+    this.response = response
   }
 
   async dbInit(req, response) {
     try {
-      await Testing.tableCreate(true)
-      response.send({
-        code: '100',
-        msg: 'success'
-      })
-    } catch (e) {
-      console.log(e)
+      await testModel.tableCreate(true)
+      this.ajaxReturn({ code: '100', msg: 'success' })
+    } catch (err) {
+      this.ajaxReturn({ code: '010', msg: err })
     }
   }
 
-  async add(req, response) {
-    let res = { code: '000', msg: 'error' }
-    let data = req.body
+  async add() {
     try {
-
-      await this.getUserInfo();
-      console.log(this.user)
-
-      let row = await Testing.save({
-        data: {
-          name: 'John891' + Math.floor(Math.random() * 1000),
-          pid: Math.floor(Math.random() * 10),
-          age: Math.floor(Math.random() * 100),
-          // where: {
-          //   id: 11,
-          // }
-        },
-      });
-      res = {
-        data: row,
-        code: '100',
+      let data = {
+        name: 'John891' + Math.floor(Math.random() * 1000),
+        pid: Math.floor(Math.random() * 10),
+        age: Math.floor(Math.random() * 100),
       }
+      let where = { pid: 3 }
+      this.ajaxReturn({ code: '100', data: await testModel.save(data, where) })
     } catch (err) {
-      res.msg = err
+      this.ajaxReturn({ code: '010', msg: err })
     }
-    response.send(res)
   }
 
-  async delById(req, response) {
-    let res = { code: '000', msg: 'error' }
-    let data = req.body
-
+  async getCount() {
     try {
-      await Testing.delById(data.id)
-      res = {
-        code: '100',
-        msg: 'success'
-      }
+      this.ajaxReturn({ code: '100', data: await testModel.getCount(this.post) })
     } catch (err) {
-      res.msg = err
+      this.ajaxReturn({ code: '010', msg: err })
     }
-    response.send(res)
+  }
+  async getList() {
+    try {
+      let res = await testModel.getList(this.post)
+      res.cdoe = '100'
+      this.ajaxReturn(res)
+    } catch (err) {
+      this.ajaxReturn({ code: '010', msg: err })
+    }
   }
 
-  async getById(req, response) {
-    let res = { code: '000', msg: 'error' }
-    let data = req.body
-
+  async delById() {
     try {
-      let row = await Testing.getById(data.id)
-      res = {
-        code: '100',
-        data: row,
-        msg: 'success'
-      }
+      this.ajaxReturn({ code: '100', data: await testModel.delById(this.post.id) })
     } catch (err) {
-      res.msg = err
+      this.ajaxReturn({ code: '010', msg: err })
     }
-    response.send(res)
   }
 
-  async getList(req, response) {
-    let res = { code: '000', msg: 'error' }
-    let data = req.body
-
+  async getById() {
     try {
-      let list = await Testing.getList(data)
-      res = {
-        code: '100',
-        data: list,
-        msg: 'success'
-      }
+      this.ajaxReturn({ code: '100', data: await testModel.getById(this.post.id) })
     } catch (err) {
-      res.msg = err
+      this.ajaxReturn({ code: '010', msg: err })
     }
-    response.send(res)
   }
 
-  async getCount(req, response) {
-    let res = { code: '000', msg: 'error' }
-    let data = req.body
-
+  async delByWhere() {
     try {
-      let count = await Testing.getCount(data)
-      res = {
-        code: '100',
-        data: count,
-        msg: 'success'
-      }
+      this.ajaxReturn({ code: '100', data: await testModel.delByWhere(this.post) })
     } catch (err) {
-      res.msg = err
+      this.ajaxReturn({ code: '010', msg: err })
     }
-    response.send(res)
   }
 
-  async delByWhere(req, response) {
-    let res = { code: '000', msg: 'error' }
-    let data = req.body
-
+  async getOne() {
     try {
-      await Testing.delByWhere(data)
-      res = {
-        code: '100',
-        msg: 'success'
-      }
+      this.ajaxReturn({ code: '100', data: await testModel.getOne(this.post) })
     } catch (err) {
-      res.msg = err
+      this.ajaxReturn({ code: '010', msg: err })
     }
-    response.send(res)
-  }
-
-  async getOne(req, response) {
-    let res = { code: '000', msg: 'error' }
-    let data = req.body
-
-    try {
-      let row = await Testing.getOne(data)
-      res = {
-        code: '100',
-        data: row,
-        msg: 'success'
-      }
-    } catch (err) {
-      res.msg = err
-    }
-    response.send(res)
   }
   // =========================== others
+  jsonpdata() {
+    this.response.jsonp({
+      code: '100',
+      msg: 'success',
+      data: 'jsonp data'
+    })
+  }
+
+  serverCookie() {
+    this.response.cookie('test1', 'test value', {
+      expires: new Date(Date.now() + 3600 * 1000 * 24),
+      path: '/',
+      httpOnly: true
+    });
+    this.ajaxReturn({
+      code: '100',
+      data: this.req.cookies.test1,
+      msg: 'success'
+    })
+  }
+
+  redisSet() {
+    redisClient.set('wefwef', Date.now(), 'EX', 3600 * 2, redis.print)
+    redisClient.get("wefwef", (err, reply) => this.ajaxReturn({ code: '100', msg: reply }))
+  }
+
+  upload() {
+    const files = this.req.files;
+    files.avatar.forEach(file => {
+      if (!/image\/\w+/.test(file.mimetype)) {
+        return this.ajaxReturn({ code: '001', msg: '请选择图像类型的文件' })
+      }
+      fs.rename(file.path, `${config.upload.path}/abc.jpg`, err => {
+        if (err) {
+          return this.ajaxReturn({ code: '010', msg: err })
+        }
+        return this.ajaxReturn({ code: '100', msg: `${config.upload.url}/abc.jpg` })
+      });
+    })
+  }
+
+  uploadBase64() {
+    const base64Data = this.post.base64.replace(/^data:image\/\w+;base64,/, "");
+    const dataBuffer = new Buffer(base64Data, 'base64');
+    fs.writeFile("upload/out.png", dataBuffer, err => {
+      if (err) {
+        return this.ajaxReturn(err);
+      }
+      this.ajaxReturn({ code: '100', msg: '保存成功！' })
+    });
+  }
 
   markdown2pdf(req, response) {
     const path = require('path')
     const markdownpdf = require("markdown-pdf")
     const root = path.resolve(__dirname, '../../')
-    markdownpdf().from.string('wegweg').to(`${root}/dist/test1.pdf`, function (err, res) { });
-    markdownpdf().from(`${root}/readme.md`).to(`${root}/dist/test2.pdf`, function (err, res) {
-      response.send({
-        code: '100',
-        msg: 'success'
-      })
-    })
-  }
-
-  serverCookie(req, response) {
-    response.cookie('test1', 'test value', {
-      expires: new Date(Date.now() + 3600 * 1000 * 24),
-      path: '/',
-      httpOnly: true
-    });
-    response.send({
-      code: '100',
-      data: req.cookies.test1,
-      msg: 'success'
-    })
-  }
-
-  jsonpdata(req, response) {
-    response.jsonp({
-      code: '100',
-      msg: 'success',
-    })
-  }
-
-  redisSet(req, response) {
-    redisClient.set('wefwef', Date.now(), 'EX', 3600 * 2, redis.print);
-    redisClient.get("wefwef", function (err, reply) {
-      // reply is null when the key is missing
-      response.send({
-        code: '100',
-        msg: reply
-      })
-    });
-  }
-
-  upload(req, response) {
-    let data = req.body;
-    let files = req.files;
-    req.files.avatar.forEach(file => {
-      if (!/image\/\w+/.test(file.mimetype)) {
-        response.jsonp({
-          code: '001',
-          msg: '请选择图像类型的文件',
-        })
-        return false;
-      }
-      fs.rename(file.path, 'upload/abc.wef', err => {
-        if (err) {
-          console.log('rename error: ' + err);
-        } else {
-          console.log('rename ok');
-        }
-      });
-    })
-    response.jsonp({
-      code: '100',
-      msg: 'success',
-    })
-  }
-  uploadBase64(req, response) {
-    let data = req.body;
-    let source = data.base64
-    let type = data.type
-
-    let base64Data = source.replace(/^data:image\/\w+;base64,/, "");
-    let dataBuffer = new Buffer(base64Data, 'base64');
-    fs.writeFile("upload/out.png", dataBuffer, err => {
+    // markdownpdf().from.string('wegweg').to(`${config.upload.path}/test1.pdf`, function (err, res) { });
+    markdownpdf().from(`${root}/readme.md`).to(`${config.upload.path}/test2.pdf`, (err, res) => {
       if (err) {
-        response.send(err);
-        return
+        return this.ajaxReturn({ code: '010', msg: err })
       }
-      response.jsonp({
-        code: '100',
-        msg: '保存成功！',
-      })
-    });
+      this.ajaxReturn({ code: '100', msg: 'success' })
+    })
   }
 
-  aesCrypto(req, response) {
-    console.log('123123123123123')
-    const algorithm = 'AES-256-ECB';
-    const clearEncoding = 'utf8';
-    const cipherEncoding = 'base64';
-    const iv = "";
+  aesCrypto() {
+    const algorithm = 'AES-256-ECB'
+    const clearEncoding = 'utf8'
+    const cipherEncoding = 'base64'
+    const iv = ""
 
     function decodeCipher(key, ciphertext) {
       let cipherChunks = [ciphertext];
@@ -286,78 +201,57 @@ class Plugin extends require('./Controller.class') {
       return cipherChunks.join('');
     }
 
-    let data = req.body;
+    let data = this.post
+
     if (data.type === 'decryption') {
       if (data.key.length != 32) {
-        response.send({
-          code: '001',
-          msg: 'keys length 32',
-        })
+        return this.ajaxReturn({ code: '001', msg: 'keys length 32', })
       }
       if (!data.ciphertext.length) {
-        response.send({
-          code: '002',
-          msg: 'ciphertext required',
-        })
+        return this.ajaxReturn({ code: '002', msg: 'ciphertext required', })
       }
       try {
-        response.send({
-          code: '100',
-          data: decodeCipher(data.key, data.ciphertext),
-        })
+        return this.ajaxReturn({ code: '100', data: decodeCipher(data.key, data.ciphertext), })
       } catch (e) {
-        response.send({
-          code: '003',
-          msg: 'failed',
-        })
+        return this.ajaxReturn({ code: '010', msg: 'failed', })
       }
-      return;
+      return
     }
 
     if (data.type !== 'decryption') {
       if (data.key.length != 32) {
-        response.send({
-          code: '001',
-          msg: 'keys length 32',
-        })
+        return this.ajaxReturn({ code: '001', msg: 'keys length 32', })
       }
       if (!data.text.length) {
-        response.send({
-          code: '002',
-          msg: 'ciphertext required',
-        })
+        return this.ajaxReturn({ code: '002', msg: 'ciphertext required', })
       }
       try {
-        response.send({
-          code: '100',
-          data: encodeCipher(data.key, data.text),
-        })
+        return this.ajaxReturn({ code: '100', data: encodeCipher(data.key, data.text), })
       } catch (e) {
-        response.send({
-          code: '003',
-          msg: 'failed',
-        })
+        return this.ajaxReturn({ code: '010', msg: 'failed', })
       }
+      return
     }
   }
+
 }
 
-const App = new Plugin()
-
-router.post('/redisSet', App.redisSet)
-router.post('/dbinit', App.dbInit)
-router.post('/add', App.add)
-router.post('/delById', App.delById)
-router.post('/delByWhere', App.delByWhere)
-router.post('/getById', App.getById)
-router.post('/getOne', App.getOne)
-router.post('/getList', App.getList)
-router.post('/getCount', App.getCount)
-router.post('/markdown2pdf', App.markdown2pdf)
-router.post('/serverCookie', App.serverCookie)
-router.get('/jsonpdata', App.jsonpdata)
-router.post('/aesCrypto', App.aesCrypto)
-router.post('/upload', cpUpload, App.upload)
-router.post('/uploadBase64', App.uploadBase64)
+// get
+router.get('/jsonpdata', (req, res) => new Application(req, res).jsonpdata())
+// post
+router.post('/redisSet', (req, res) => new Application(req, res).redisSet())
+router.post('/dbinit', (req, res) => new Application(req, res).dbInit())
+router.post('/add', (req, res) => new Application(req, res).add())
+router.post('/delById', (req, res) => new Application(req, res).delById())
+router.post('/delByWhere', (req, res) => new Application(req, res).delByWhere())
+router.post('/getById', (req, res) => new Application(req, res).getById())
+router.post('/getOne', (req, res) => new Application(req, res).getOne())
+router.post('/getList', (req, res) => new Application(req, res).getList())
+router.post('/getCount', (req, res) => new Application(req, res).getCount())
+router.post('/markdown2pdf', (req, res) => new Application(req, res).markdown2pdf())
+router.post('/serverCookie', (req, res) => new Application(req, res).serverCookie())
+router.post('/aesCrypto', (req, res) => new Application(req, res).aesCrypto())
+router.post('/uploadfile', cpUpload, (req, res) => new Application(req, res).upload())
+router.post('/uploadBase64', upload.single('basefile'), (req, res) => new Application(req, res).uploadBase64())
 
 module.exports = router;

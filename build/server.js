@@ -10,12 +10,12 @@ const log4js = require('log4js')
 const compression = require('compression');
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
-
 const fileStreamRotator = require('file-stream-rotator')
 
 require('./check-versions')()
+
 const env = process.env.NODE_ENV === 'development' ? 'dev' : 'pro'
-const config = require('./server.config.js')[env]
+const config = require('./server.config.js')
 
 // server
 const app = express()
@@ -55,6 +55,7 @@ app.set('jsonp callback name', config.jsonpCallback || 'callback');
 
 // view engine setup
 app.set('views', path.join(__dirname, '../src/static'))
+app.set('upload', path.join(__dirname, '../upload'))
 app.set('view engine', 'jade')
 
 // routers

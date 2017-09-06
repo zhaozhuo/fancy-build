@@ -9,70 +9,96 @@ class ModelClass {
     return new Promise(async (resolve, reject) => {
       try {
         let res = this.model.sync({ force })
-        resolve(res.dataValues)
-      } catch (err) {
-        reject(DEBUG ? err : err.original.code)
+        return resolve(res.dataValues)
+      }
+      catch (err) {
+        return reject(DEBUG ? err : err.original.code)
       }
     })
   }
 
-  save(param = {}) {
+  getCount(where = {}) {
     return new Promise(async (resolve, reject) => {
-      let res, where
-      if (!param.data) {
-        return reject('data required')
+      try {
+        return resolve(await this.model.count({ where }))
       }
-      if (param.data.where) {
-        where = {
-          where: param.data.where
+      catch (err) {
+        return reject(DEBUG ? err : err.original.code)
+      }
+    })
+  }
+
+  getList(param = {}) {
+    let {
+      where,
+      fields,
+      page = 1,
+      perpage = 30,
+      count = false,
+      order = [['id', 'DESC']],
+    } = param
+
+    page = Math.max(1, parseInt(page))
+    perpage = Math.max(1, parseInt(perpage))
+
+    let opt = {
+      offset: (page - 1) * perpage,
+      limit: perpage,
+    }
+    if (where) opt.where = where
+    if (order) opt.order = order
+    if (fields) opt.attributes = fields
+
+    return new Promise(async (resolve, reject) => {
+      try {
+        let query = count ? await this.model.findAndCountAll(opt) : await this.model.findAll(opt)
+        let res = {
+          data: [],
+          pages: {
+            page,
+            perpage,
+            count: query.count || -1,
+            next: (opt.offset + perpage) < query.count ? 1 : 0,
+          },
         }
-        delete param.data.where
+        for (let v of (query.rows || query)) {
+          res.data.push(v.dataValues)
+        }
+        return resolve(res)
+      }
+      catch (err) {
+        return reject(DEBUG ? err : err.original.code)
+      }
+    })
+  }
+
+  save(data, where) {
+    return new Promise(async (resolve, reject) => {
+      let res = false
+      if (!data) {
+        return reject('data required')
       }
       try {
         if (where) {
-          res = await this.model.update(param.data, where)
-          resolve(res[0])
-        } else {
-          res = await this.model.create(param.data)
-          resolve(res.dataValues)
+          res = await this.model.update(data, { where })
+          return resolve(res[0])
         }
-      } catch (err) {
+        res = await this.model.create(data)
+        return resolve(res.dataValues)
+      }
+      catch (err) {
         reject(DEBUG ? err : err.original.code)
       }
     });
   }
 
-  // param id
-  delById(id = 0) {
-    return new Promise(async (resolve, reject) => {
-      let where = { id }
-      try {
-        let res = await this.model.destroy({ where })
-        resolve(res)
-      } catch (err) {
-        reject(DEBUG ? err : err.original.code)
-      }
-    })
-  }
-
-  delByWhere(where = {}) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        let res = await this.model.destroy({ where })
-        resolve(res)
-      } catch (err) {
-        reject(DEBUG ? err : err.original.code)
-      }
-    })
-  }
-
   getById(id = 0) {
     return new Promise(async (resolve, reject) => {
       try {
-        let res = await this.model.findById(id)
-        resolve(res)
-      } catch (err) {
-        reject(DEBUG ? err : err.original.code)
+        return resolve(await this.model.findById(id))
+      }
+      catch (err) {
+        return reject(DEBUG ? err : err.original.code)
       }
     })
   }
@@ -80,81 +106,33 @@ class ModelClass {
   getOne(where = {}) {
     return new Promise(async (resolve, reject) => {
       try {
-        let res = await this.model.findOne({ where })
-        resolve(res)
-      } catch (err) {
-        reject(DEBUG ? err : err.original.code)
+        return resolve(await this.model.findOne({ where }))
+      }
+      catch (err) {
+        return reject(DEBUG ? err : err.original.code)
       }
     })
   }
 
-  // async getOrCreate(param = {}) {
-  //   let _error = param.error || noop;
-  //   if (!param.data) return _error('data required');
-  //   if (!param.data.value) return _error('data value required');
-  //   if (!param.data.where) return _error('data where required');
-
-  //   try {
-  //     await this.model.findOrCreate({
-  //       where: param.data.where,
-  //       defaults: param.data.value,
-  //     }).spread((obj, created) => {
-  //       let res = obj.get({
-  //         plain: false
-  //       })
-  //       param.success && param.success(res)
-  //     })
-  //     // param.success && param.success(res.dataValues)
-  //   } catch (err) {
-  //     _error(DEBUG ? err : err.original.code)
-  //   }
-  // }
-
-  // param.data: query where
-  getCount(where = {}) {
+  delById(id = 0) {
     return new Promise(async (resolve, reject) => {
+      let where = { id }
       try {
-        let res = await this.model.count({ where })
-        resolve(res)
-      } catch (err) {
-        reject(DEBUG ? err : err.original.code)
+        return resolve(await this.model.destroy({ where }))
+      }
+      catch (err) {
+        return reject(DEBUG ? err : err.original.code)
       }
     })
   }
 
-  // param.page
-  // param.perpage
-  // param.where
-  // param.fields
-  // param.order
-  // param.count
-  getList(param = {}) {
-    let opt = {}
-    let page = Math.max(0, parseInt(param.page || 1))
-
-    opt.limit = Math.max(1, parseInt(param.perpage || 20))
-    opt.offset = (page - 1) * opt.limit
-
-    if (param.where) opt.where = param.where
-    if (param.fields) opt.attributes = param.fields
-    if (param.order) opt.order = param.order
-
+  delByWhere(where = {}) {
     return new Promise(async (resolve, reject) => {
       try {
-        let query = param.count ? await this.model.findAndCountAll(opt) : await this.model.findAll(opt)
-        let res = {
-          page: page,
-          perpage: opt.limit,
-          count: query.count || -1,
-          next: (opt.offset + opt.limit) < query.count ? 1 : 0,
-          data: [],
-        }
-        for (let v of (query.rows || query)) {
-          res.data.push(v.dataValues)
-        }
-        resolve(res)
-      } catch (err) {
-        reject(DEBUG ? err : err.original.code)
+        return resolve(await this.model.destroy({ where }))
+      }
+      catch (err) {
+        return reject(DEBUG ? err : err.original.code)
       }
     })
   }

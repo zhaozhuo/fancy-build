@@ -1,7 +1,5 @@
 const Sequelize = require('sequelize')
-
-const env = process.env.NODE_ENV === 'development' ? 'dev' : 'pro'
-const config = require('../build/server.config')[env]
+const config = require('../build/server.config')
 const logger = require('./logger')('sql')
 const mydb   = config.mysql
 

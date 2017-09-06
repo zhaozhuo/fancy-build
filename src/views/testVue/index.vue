@@ -1,15 +1,14 @@
 <style lang="sass">
   @import "../../config.sass"
   .test
-    max-width: $mainWidth
-    margin: 10px auto 0
+    margin: 0 35% 0 20px
     position: relative
     .result
       position: fixed
       top: 0
-      width: $mainWidth
-      height: 50px
-      margin: 0 auto
+      bottom: 0
+      right: 0
+      width: 33%
       textarea
         width: 100%
         height: 100%
@@ -24,12 +23,13 @@
       padding: 10px 30px
       margin: 10px 20px 10px 0
     dl
-      margin: 80px 0 50px
+      margin: 30px 0 30px
+      background: rgba(#000, 0.1)
+      padding: 0 10px
     dt
       font-size: 22px
       color: #000
       line-height: 40px
-
 
 </style>
 
@@ -48,7 +48,7 @@
             input(v-model="aesText" type="text" style="width: 300px")
         p
           label 密文
-            textarea(v-model="aesCiphertext" style="border: 1px soild #ccc;width: 100%;height: 200px")
+            textarea(v-model="aesCiphertext" style="border: 1px soild #ccc;width: 100%;height: 100px")
         p
           button(@click="aesCrypto('encryption')") 加密
           button(@click="aesCrypto('decryption')") 解密
@@ -69,11 +69,14 @@
         button(@click="jsonpdata") jsonpdata
 
     dl
-      dt uploader
+      dt base64 upload
       dd
         input(type="file" autocomplete="off" @change="fileChange")
+
+    dl
+      dt file upload
       dd
-        form(method='post', action='http://localhost:5151/testing/upload', enctype='multipart/form-data')
+        form(method='post', action='http://localhost:5151/testing/uploadfile', enctype='multipart/form-data')
           input(name='avatar', type='file', multiple='mutiple')
           input(name='submit', type='submit',value='upload')
 
@@ -243,7 +246,7 @@
           url : '/api/testing/getCount',
           data: {
             id: {
-              $gt: 11,
+              $lt: 11,
             }
           },
           type: 'post',
@@ -258,7 +261,7 @@
           url : '/api/testing/getList',
           data: {
             count: true,
-            page: 5,
+            page: 1,
             perpage: 8,
             order: [
               ['pid', 'DESC'],
@@ -274,9 +277,6 @@
           timeout: 5e3,
           error: err => console.log(err),
           success: res => {
-            res.data.data.forEach(v => {
-              console.log(v.pid)
-            })
             this.result = JSON.stringify(res)
           }
         });

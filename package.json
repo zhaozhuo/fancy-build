@@ -5,11 +5,11 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "server:dev": "cross-env NODE_ENV=development supervisor -w server -q build/server.js",
-    "server:pro": "cross-env NODE_ENV=production node build/server.js",
-    "webpack:dev": "cross-env NODE_ENV=development node build/webpack.js",
-    "webpack:pro": "cross-env NODE_ENV=production node build/webpack.js",
-    "webpack:build": "cross-env NODE_ENV=build node build/webpack.js"
+    "s.dev": "cross-env NODE_ENV=development supervisor -w server -q build/server.js",
+    "s.pro": "cross-env NODE_ENV=production node build/server.js",
+    "w.dev": "cross-env NODE_ENV=development node build/webpack.js",
+    "w.pro": "cross-env NODE_ENV=production node build/webpack.js",
+    "w.build": "cross-env NODE_ENV=build node build/webpack.js"
   },
   "author": "DenverZhao",
   "license": "ISC",

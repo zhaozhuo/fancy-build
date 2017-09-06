@@ -1,7 +1,8 @@
 const path = require('path')
 const log4js = require('log4js')
 const root = path.resolve(__dirname, '../')
-
+const env = process.env.NODE_ENV === 'development' ? 'dev' : 'pro'
+const debug = env === 'dev'
 // http://qianduan.guru/2016/08/21/nodejs-lesson-1-log4js/
 // const levels = {
 //   trace: log4js.levels.TRACE,
@@ -46,30 +47,28 @@ log4js.configure({
     },
     sql: {
       appenders: ['sql', 'console'],
-      level: 'info'
+      level: debug ? 'debug' : 'warn',
     },
     script: {
       appenders: ['script', 'console'],
-      level: 'info'
+      level: debug ? 'debug' : 'warn',
     }
   },
   replaceConsole: true,
 });
 
 const logger = category => log4js.getLogger(category);
-
-module.exports = {
+const config = {
   dev: {
     logger,
     port: 5151,
     jsonpCallback: 'callback',
-    uploadDir: 'wefwe',
     mysql: {
       host: 'localhost',
       port: 3306,
       database: 'myapp',
       username: 'root',
-      password: 'root',
+      password: 'abc123123',
       prefix: 'fb_',
     },
     https: {
@@ -87,13 +86,12 @@ module.exports = {
     logger,
     port: 8181,
     jsonpCallback: 'callback',
-    uploadDir: 'wefwe',
     mysql: {
       host: 'localhost',
       port: 3306,
       database: 'myapp',
       username: 'root',
-      password: 'root',
+      password: 'abc123123123123123',
       prefix: 'fb_',
     },
     https: {
@@ -108,3 +106,5 @@ module.exports = {
     },
   },
 }
+
+module.exports = config[env]

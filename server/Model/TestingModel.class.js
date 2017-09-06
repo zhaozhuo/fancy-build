@@ -1,7 +1,5 @@
-const path = require('path')
 const db = require('../sequelize')
 const ModelClass = require('./Model.class')
-const table = 'testing'
 
 const definition = db.define(`${db.options.prefix}testing`, {
   name: {
@@ -40,7 +38,7 @@ const definition = db.define(`${db.options.prefix}testing`, {
       },
     ],
     engine: 'InnoDB', // InnoDB MYISAM
-    comment: 'user table',
+    comment: 'test table',
     freezeTableName: true, // alter the model name to get the table name
     timestamps: true, //Adds createdAt and updatedAt timestamps to the model
     createdAt: 'ctime', // alias
@@ -54,6 +52,7 @@ const definition = db.define(`${db.options.prefix}testing`, {
 class Model extends ModelClass {
   constructor(db) {
     super(db)
+    this.model = db;
   }
 }
 
