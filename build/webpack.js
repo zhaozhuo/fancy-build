@@ -24,7 +24,7 @@ function buildPro() {
   _clear('views')
 
   spinner.start()
-  webpack(webpackConfig, function(err, stats) {
+  webpack(webpackConfig, function (err, stats) {
     spinner.stop()
     if (err) throw err
     process.stdout.write(stats.toString({
@@ -35,12 +35,12 @@ function buildPro() {
       chunkModules: false,
     }) + '\n')
     console.log(chalk.cyan('  Build complete.\n'))
-      // console.log(chalk.yellow())
+    // console.log(chalk.yellow())
   })
 }
 
 function buildDev() {
-  const port = process.env.NODE_ENV === 'production' ? config.pro.port : config.dev.port;
+  const port = config.dev.port;
   // server
   const app = express()
 
@@ -59,11 +59,11 @@ function buildDev() {
     noInfo: true,
   })
   const hotMiddleware = require('webpack-hot-middleware')(compiler, {
-    log: () => {},
+    log: () => { },
   });
   // force page reload when html-webpack-plugin template changes
-  compiler.plugin('compilation', function(compilation) {
-    compilation.plugin('html-webpack-plugin-after-emit', function(data, cb) {
+  compiler.plugin('compilation', function (compilation) {
+    compilation.plugin('html-webpack-plugin-after-emit', function (data, cb) {
       hotMiddleware.publish({
         action: 'reload'
       })
@@ -85,22 +85,22 @@ function buildDev() {
   devMiddleware.waitUntilValid(() => {
     const uri = 'http://localhost:' + config.dev.port
     console.log('> Listening at ' + uri + '\n')
-    config.dev.autoOpenBrowser && process.env.NODE_ENV !== 'production' && opn(uri)
+    config.dev.autoOpenBrowser && opn(uri)
   })
 
   // catch 404 and forward to error handler
-  app.use(function(req, res, next) {
+  app.use((req, res, next) => {
     let err = new Error('Not Found')
     err.status = 404
     next(err)
   })
 
   // error handler
-  app.use(function(err, req, res, next) {
+  app.use((err, req, res, next) => {
     // set locals, only providing error in development
     res.locals.message = err.message
-    res.locals.error = process.env.NODE_ENV === 'production' ? {} : err
-      // render the error page
+    res.locals.error = err
+    // render the error page
     res.status(err.status || 500)
     res.render('error')
   })

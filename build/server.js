@@ -60,7 +60,7 @@ app.set('view engine', 'jade')
 
 // routers
 app.use(express.static(path.join(__dirname, '../dist')))
-app.use('/testing', require('../server/Controller/TestingController'))
+// app.use('/testing', require('../server/Controller/TestingController'))
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

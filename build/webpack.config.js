@@ -98,6 +98,5 @@ module.exports = {
   },
   pro: {
     port: 8080,
-    autoOpenBrowser: false,
   },
 }
