@@ -13,7 +13,7 @@ const db = new Sequelize(mydb.database, mydb.username, mydb.password, {
     idle: 10000
   },
   Sequelize,
-  prefix: mydb.prefix,
+  prefix: 'fb_',
   logging: sql => logger.info(sql),
 })
 

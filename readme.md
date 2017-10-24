@@ -6,15 +6,15 @@
 
 > 后端服务
 
-  * npm run server:dev 开发环境
-  * npm run server:pro 生产环境
+  * npm run s:dev 开发环境
+  * npm run s:pro 生产环境
 
 
 > 前端服务
 
-  * npm run webpack:dev 开发环境
-  * npm run webpack:pro 生产环境
-  * npm run webpack:build 预编译(保留watch)
+  * npm run w:dev 开发环境
+  * npm run w:pro 生产环境
+  * npm run w:build 预编译(保留watch)
 
 
 > https证书生成

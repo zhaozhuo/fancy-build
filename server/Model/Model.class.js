@@ -1,142 +1,290 @@
+const mysql = require('mysql')
+const logger = require('../logger')('sql')
+const db = require('../mysql')
+const noop = function () { }
 const DEBUG = process.env.NODE_ENV === 'development'
 
-class ModelClass {
-  constructor(db) {
-    this.model = db
+const alias = {
+  $or: 'or',
+  $gt: '>',
+  $gte: '>=',
+  $lt: '<',
+  $lte: '<=',
+  $ne: '!=',
+  $eq: '=',
+  $in: 'IN',
+  $notIn: 'NOT IN',
+  $like: 'LIKE',
+  $notLike: 'NOT LIKE',
+}
+// mysql where query
+function queryWhere(data, field, parents, level = 0) {
+  let res = [];
+  level++
+  if (['$in', '$notIn'].includes(field)) {
+    return `${parents} ${alias[field]} (${data})`
   }
-
-  tableCreate(force = false) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        let res = this.model.sync({ force })
-        return resolve(res.dataValues)
-      }
-      catch (err) {
-        return reject(DEBUG ? err : err.original.code)
-      }
-    })
+  if (['$like', '$notLike'].includes(field)) {
+    return `${parents} ${alias[field]} ${mysql.escape('%' + data + '%')}`
   }
-
-  getCount(where = {}) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        return resolve(await this.model.count({ where }))
-      }
-      catch (err) {
-        return reject(DEBUG ? err : err.original.code)
-      }
-    })
+  if (['$eq', '$ne', '$gte', '$gt', '$lte', '$lt'].includes(field)) {
+    return [parents, mysql.escape(data)].join(` ${alias[field]} `)
   }
-
-  getList(param = {}) {
-    let {
-      where,
-      fields,
-      page = 1,
-      perpage = 30,
-      count = false,
-      order = [['id', 'DESC']],
-    } = param
-
-    page = Math.max(1, parseInt(page))
-    perpage = Math.max(1, parseInt(perpage))
-
-    let opt = {
-      offset: (page - 1) * perpage,
-      limit: perpage,
+  if (typeof data === 'object') {
+    if (Array.isArray(data)) {
+      for (let value of data) {
+        res.push(`${queryWhere(value, false, false, level)}`)
+      }
+    } else {
+      for (let i in data) {
+        res.push(queryWhere(data[i], i, field, level))
+      }
     }
-    if (where) opt.where = where
-    if (order) opt.order = order
-    if (fields) opt.attributes = fields
-
-    return new Promise(async (resolve, reject) => {
-      try {
-        let query = count ? await this.model.findAndCountAll(opt) : await this.model.findAll(opt)
-        let res = {
-          data: [],
-          pages: {
-            page,
-            perpage,
-            count: query.count || -1,
-            next: (opt.offset + perpage) < query.count ? 1 : 0,
-          },
+    if (field === '$or') {
+      return res.length > 0 ? `(${res.join(' OR ')})` : res.join(' OR ')
+    }
+    return res.length > 1 && level > 1 ? `(${res.join(' AND ')})` : res.join(' AND ')
+  }
+  return [field, mysql.escape(data)].join(' = ')
+}
+function queryOrder(data) {
+  let res = []
+  for (let i in data) {
+    res.push(`${i} ${data[i]}`)
+  }
+  return res.join(',')
+}
+// test
+function testQuery() {
+  let where = {
+    p_valid: '1',
+    p_type: '4',
+    p_searchcriteria2: {
+      $like: '易用'
+    },
+    p_searchcriteria5: {
+      $like: '目'
+    },
+    p_status: {
+      $notIn: [1, 2, 3, 0, 13]
+    },
+    p_creattime: {
+      $gt: '2017-08-01 00:00:00',
+      $lt: '2017-09-07 00:00:00',
+    },
+    $or: [
+      { id1: 10 },
+      { id2: 10 },
+      {
+        id3: {
+          $gt: 13,
+          $lt: 15,
+        },
+      },
+      {
+        id5: {
+          $in: [1, 2, 3, 4],
+          $like: '"\\like'
         }
-        for (let v of (query.rows || query)) {
-          res.data.push(v.dataValues)
+      }
+    ],
+  }
+  let order = {
+    id: 'desc',
+    time: 'asc',
+  }
+  console.log(queryWhere(where))
+  console.log(queryOrder(order))
+}
+
+// Basic MODEL
+class ModelClass {
+
+  constructor(table) {
+    this.model = db.pool
+    this.table = db.prefix + table
+    this.queryWhere = queryWhere
+    this.queryOrder = queryOrder
+  }
+
+  // return insertId
+  create(data = {}) {
+    return new Promise((resolve, reject) => {
+      let keys = Object.keys(data)
+      let values = Object.values(data).map(v => mysql.escape(typeof v == 'object' ? JSON.stringify(v) : v))
+      let sql = `INSERT INTO ${this.table} (${keys.join(',')}) VALUES (${values.join(',')})`
+      logger.info(sql)
+
+      try {
+        this.model.query(sql, (err, res) => {
+          if (err) {
+            logger.error(err)
+            return reject(DEBUG ? err : err.code)
+          }
+          return resolve(res.insertId)
+        })
+      } catch (error) {
+        logger.error(error)
+        return reject(error)
+      }
+    })
+  }
+
+  // id
+  // fields = ['p_id', 'p_pid'] or 'p_id,p_pid'
+  getById(id = 0, fields = []) {
+    return new Promise((resolve, reject) => {
+      let _field = Array.isArray(fields) && fields.length ? fields.join(',') : '*'
+      let sql = `SELECT ${_field} from ${this.table} WHERE id = ${mysql.escape(id)}`
+      logger.info(sql)
+
+      try {
+        this.model.query(sql, (err, res) => {
+          if (err) {
+            logger.error(err)
+            return reject(DEBUG ? err : err.code)
+          }
+          return resolve(res[0] || [])
+        })
+      } catch (error) {
+        logger.error(error)
+        return reject(error)
+      }
+    })
+  }
+
+  // param.where
+  // param.order     // 排序 ｛id: 'desc', 'time': 'asc'}
+  // param.fields    // 字段  'id,pid,time'
+  // param.page      // 当前页
+  // param.perpage   // 每页数量
+  // param.count     // 是否查询总数
+  getList(param = {}) {
+    return new Promise((resolve, reject) => {
+      let {
+        where,
+        order,
+        fields = '*',
+        page = 1,
+        perpage = 20,
+        count = false,
+      } = param
+      page = Math.max(1, parseInt(page))
+      perpage = Math.max(1, parseInt(perpage))
+
+      let _table = this.table
+      let _model = this.model
+      let _where = where ? ` WHERE ${this.queryWhere(where)}` : ''
+      let _order = order ? ` ORDER BY ${this.queryOrder(order)}` : ''
+      let _field = Array.isArray(fields) ? fields.join(',') : fields
+      let _start = (page - 1) * perpage
+      let _end = _start + perpage
+
+      count ? __count() : __list()
+
+      function __count() {
+        let sql = `SELECT COUNT(*) FROM ${_table}${_where}`
+        logger.info(sql)
+
+        try {
+          _model.query(sql, (err, res) => {
+            if (err) {
+              logger.error(err)
+              return reject(DEBUG ? err : err.code)
+            }
+            count = res[0] ? res[0]['COUNT(*)'] : 0
+            return count ? __list(count) : resolve({
+              data: [],
+              pages: {
+                page,
+                perpage,
+                count,
+                pagecount: Math.ceil(count / perpage),
+              }
+            })
+          })
+        } catch (error) {
+          return reject(error)
         }
-        return resolve(res)
       }
-      catch (err) {
-        return reject(DEBUG ? err : err.original.code)
-      }
-    })
-  }
 
-  save(data, where) {
-    return new Promise(async (resolve, reject) => {
-      let res = false
-      if (!data) {
-        return reject('data required')
-      }
-      try {
-        if (where) {
-          res = await this.model.update(data, { where })
-          return resolve(res[0])
+      function __list(count = 0) {
+        let sql = `SELECT ${_field} FROM ${_table}${_where}${_order} LIMIT ${_start}, ${_end}`
+        logger.info(sql)
+
+        try {
+          _model.query(sql, (err, res) => {
+            if (err) {
+              logger.error(err)
+              return reject(DEBUG ? err : err.code)
+            }
+            return resolve({
+              data: res,
+              pages: {
+                page,
+                perpage,
+                count,
+                pagecount: Math.ceil(count / perpage),
+              }
+            })
+          })
+        } catch (error) {
+          logger.error(error)
+          return reject(error)
         }
-        res = await this.model.create(data)
-        return resolve(res.dataValues)
-      }
-      catch (err) {
-        reject(DEBUG ? err : err.original.code)
-      }
-    });
-  }
 
-  getById(id = 0) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        return resolve(await this.model.findById(id))
-      }
-      catch (err) {
-        return reject(DEBUG ? err : err.original.code)
       }
     })
   }
 
-  getOne(where = {}) {
-    return new Promise(async (resolve, reject) => {
+  // return number
+  getCount(where = null) {
+    return new Promise((resolve, reject) => {
+      let _where = where ? ` WHERE ${this.queryWhere(where)}` : '';
+      let sql = `SELECT COUNT(*) from ${this.table}${_where}`
+      logger.info(sql)
+
       try {
-        return resolve(await this.model.findOne({ where }))
+        this.model.query(sql, (err, res) => {
+          if (err) {
+            logger.error(err)
+            return reject(DEBUG ? err : err.code)
+          }
+          return resolve(res[0] ? res[0]['COUNT(*)'] : 0)
+        })
       }
-      catch (err) {
-        return reject(DEBUG ? err : err.original.code)
+      catch (error) {
+        logger.error(error)
+        reject(error)
       }
     })
   }
 
-  delById(id = 0) {
-    return new Promise(async (resolve, reject) => {
-      let where = { id }
-      try {
-        return resolve(await this.model.destroy({ where }))
-      }
-      catch (err) {
-        return reject(DEBUG ? err : err.original.code)
-      }
-    })
-  }
+  // param.data.id
+  // param.data.values = {p_id : 12, p_name: 'name'}
+  // param.error(string)
+  // param.success(string)
+  setById(param = {}) {
+    let _error = param.error || noop;
+    let data = param.data || {};
+    if (!data.id) return _error('id required')
+    if (!data.values) return _error('values required')
 
-  delByWhere(where = {}) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        return resolve(await this.model.destroy({ where }))
+    let _values = [];
+    for (let i in data.values) {
+      _values.push(`${i} = ${mysql.escape(data.values[i])}`)
+    }
+    _sql = `UPDATE ${this.table} SET ${_values.join(',')} WHERE p_id=${mysql.escape(data.id)}`;
+
+    this.model.query(_sql, (err, res, fields) => {
+      if (err) {
+        logger.warn(err);
+        return _error("search error")
       }
-      catch (err) {
-        return reject(DEBUG ? err : err.original.code)
-      }
+      logger.info(_sql)
+      param.success && param.success(res)
     })
   }
 
 }
-
 module.exports = ModelClass

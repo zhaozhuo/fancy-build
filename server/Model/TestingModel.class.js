@@ -1,5 +1,5 @@
 const db = require('../sequelize')
-const ModelClass = require('./Model.class')
+const ModelClass = require('./ModelSequelize.class')
 
 const definition = db.define(`${db.options.prefix}testing`, {
   name: {

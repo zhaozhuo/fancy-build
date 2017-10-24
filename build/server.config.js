@@ -39,6 +39,13 @@ log4js.configure({
       alwaysIncludePattern: true,
       maxLogSize: 1024,
     },
+    mail: {
+      type: 'dateFile',
+      filename: `${root}/logs/mail`,
+      pattern: '.yyyyMMdd.log',
+      alwaysIncludePattern: true,
+      maxLogSize: 1024,
+    },
   },
   categories: {
     default: {
@@ -52,7 +59,11 @@ log4js.configure({
     script: {
       appenders: ['script', 'console'],
       level: debug ? 'debug' : 'warn',
-    }
+    },
+    mail: {
+      appenders: debug ? ['mail', 'console'] : ['mail'],
+      level: debug ? 'info' : 'warn',
+    },
   },
   replaceConsole: true,
 });
@@ -69,7 +80,6 @@ const config = {
       database: 'myapp',
       username: 'root',
       password: 'abc123123',
-      prefix: 'fb_',
     },
     https: {
       port: 5252,
@@ -92,7 +102,6 @@ const config = {
       database: 'myapp',
       username: 'root',
       password: 'abc123123123123123',
-      prefix: 'fb_',
     },
     https: {
       port: 8282,
