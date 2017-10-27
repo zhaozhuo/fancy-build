@@ -21,6 +21,7 @@ var htmlWebpack = [
     filename: 'index.html',
     template: './src/index.pug',
     inject: 'body', // head body
+    cache: false,
     // chunks: ['views/index'],
     minify: {
       removeComments: true,
@@ -54,7 +55,7 @@ module.exports = {
     path: dist,
     publicPath: '/',
     filename: '[name].js',
-    chunkFilename: 'views/[name].js',
+    // chunkFilename: 'views/[name].js',
   },
   htmlWebpack,
   // variables
@@ -63,13 +64,16 @@ module.exports = {
 
   // alias
   alias: {
-    lib: `${root}/lib/`,
+    lib: `${root}/src/lib/`,
     // node
     vue$: 'vue/dist/vue.js',
     zepto$: 'zepto/dist/zepto.min.js',
     jquery$: 'jquery/dist/jquery.min.js',
     swiper$: 'swiper/dist/js/swiper.min.js',
     lazyload$: '/vanilla-lazyload/dist/lazyload.min.js',
+    '@@': `${root}/src/`,
+    'components': `${root}/src/components/`,
+    'fancy_style': `${root}/src/config.sass`,
   },
 
   // assets

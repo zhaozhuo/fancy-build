@@ -3,11 +3,12 @@ body
   margin: 0
   background: #fff
   font-size: 14px
-  color: #000
+  color: $colorFont
 h1, h2, h3, h4, h5, h6
   margin: 0
   padding: 0
-  font-size: 14px
+  font-weight: normal
+  font-size: 100%
 div, form, img, ul, ol, li, dl, dt, dd
   margin: 0
   padding: 0
@@ -43,13 +44,29 @@ textarea
 a
   text-decoration: none
   &:link
-    color: $linkColor
+    color: $colorLink
   &:visited
-    color: $linkColor
+    color: $colorLink
   &:hover
-    color: #f40
+    color: $colorTheme
     text-decoration: underline
   &:active,
   &:focus
-    color: #039
+    color: $colorTheme
+
+.viewport
+  margin: 0 $space * 2
+.navigation
+  position: fixed
+  top: 0
+  bottom: 0
+  width: 15rem
+  z-index: 100
+  overflow-y: auto
+  overflow-x: hidden
+  transition: all 500ms cubic-bezier(0.23 1 0.32 1)
+  border-right: 1px solid #ddd
+.main
+  margin-left: 16rem
+
 

@@ -7,7 +7,6 @@ const express = require('express')
 const webpack = require('webpack')
 const favicon = require('serve-favicon')
 const proxyMiddleware = require('http-proxy-middleware')
-const version = require('./check-versions')()
 
 const config = require('./webpack.config')
 const webpackConfig = require('./webpack.base.js')

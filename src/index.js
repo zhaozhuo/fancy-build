@@ -1,20 +1,82 @@
-require('./css.sass');
+require('./css.sass')
 // node modules
 require('script!zepto')
-import Vue from 'vue';
+require("font-awesome/css/font-awesome.css");
+import Vue from 'vue'
+import sidebar from 'components/sidebar/'
 
 new Vue({
   el: '.viewport',
   data: {
     appview: '',
-    title: 'aaa'
+    title: 'aaa',
+    sidebar: {
+      data: {
+        api: {
+          name: 'Node Api',
+          items: [
+            {
+              name: 'normal ajax',
+              url: '/api/',
+            },
+            {
+              name: 'test1-2',
+              url: '1-2',
+            },
+            {
+              name: 'test1-3',
+              url: '1-3',
+            },
+          ],
+        },
+        active: {
+          name: 'Active',
+          items: [
+            {
+              name: 'test2-1',
+              url: '2-1',
+            },
+            {
+              name: 'test2-2',
+              url: '2-2',
+            },
+            {
+              name: 'test2-3',
+              url: '2-3',
+            },
+          ],
+        },
+        mobile: {
+          name: 'mobile',
+          items: [
+            {
+              name: 'test3-1',
+              url: '3-1',
+            },
+            {
+              name: 'test3-2',
+              url: '3-2',
+            },
+            {
+              name: 'test3-3',
+              url: '3-3',
+            },
+          ],
+        }
+      },
+    }
   },
   components: {
-    testVue(resolve) {
-      require(['./views/testVue/'], resolve)
-    },
+    sidebar,
+    testVue: rs => require(['./views/testVue/'], rs),
+    api: rs => require(['./views/api/'], rs),
   },
   mounted() {
-    this.appview = 'testVue';
+    const router = window.location.pathname.split('/').slice(1, 3).filter(v => !!v && v != 'index.html').join('/') || 'index'
+    if (!(router in this.$options.components)) {
+      window.history.replaceState(null, '', '/')
+      return this.appview = 'index'
+    }
+    this.appview = router;
   },
 })

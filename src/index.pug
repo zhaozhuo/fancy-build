@@ -13,4 +13,7 @@ html
     meta(name="keywords", content="")
   body
     .viewport
-      component(:is="appview")
+      .navigation
+        component(is="sidebar",:cfg="sidebar")
+      .main
+        component(:is="appview")

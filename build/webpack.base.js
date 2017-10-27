@@ -4,7 +4,8 @@ const webpack = require('webpack')
 const multi = require("multi-loader")
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-  // https://github.com/DustinJackson/html-webpack-inline-source-plugin
+
+// https://github.com/DustinJackson/html-webpack-inline-source-plugin
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin')
 
@@ -20,13 +21,17 @@ const config = require('./webpack.config.js')
 
 // add hot-reload related code to entry chunks
 if (process.env.NODE_ENV === 'development') {
-  Object.keys(config.entry).forEach(name => config.entry[name] = ['./build/dev-client'].concat(config.entry[name]))
+  // Object.keys(config.entry).forEach(name => config.entry[name] = ['./build/dev-client'].concat(config.entry[name]))
+  Object.keys(config.entry).forEach(name => config.entry[name] = [config.entry[name], 'webpack-hot-middleware/client?reload=true'])
 }
 
 module.exports = {
   entry: config.entry,
   output: config.output,
   watch: process.env.NODE_ENV !== 'production',
+  watchOptions: {
+    poll: 1000
+  },
   // stats: {
   //   children: false,
   //   verbose: false,
@@ -45,14 +50,14 @@ module.exports = {
               use: "css-loader!postcss-loader"
             }),
             // sass: 'vue-style-loader!css-loader!svg-fill-loader/encodeSharp!postcss-loader!sass-loader?indentedSyntax',
-            // jade: 'vue-html-loader!jade-html-loader',
             sass: cssExtractTextPlugin.extract({
-              use: "css-loader!svg-fill-loader/encodeSharp!postcss-loader!sass-loader?indentedSyntax",
+              use: "css-loader?minimize=true!svg-fill-loader/encodeSharp!postcss-loader!sass-loader?indentedSyntax",
               fallback: 'vue-style-loader'
             }),
           },
         },
       },
+
       {
         test: /\.js$/,
         use: 'babel-loader?cacheDirectory',
@@ -63,10 +68,15 @@ module.exports = {
         use: 'pug-loader',
       },
       {
-        test: /\.sass$/,
-        // loader: 'vue-style-loader!css-loader!svg-fill-loader/encodeSharp!sass-loader?indentedSyntax',
+        test: /\.css$/,
         use: cssExtractTextPlugin.extract({
-          use: "css-loader!svg-fill-loader/encodeSharp!postcss-loader!sass-loader?indentedSyntax",
+          use: "css-loader?sourceMap&minimize=true",
+        })
+      },
+      {
+        test: /\.sass$/,
+        use: cssExtractTextPlugin.extract({
+          use: "css-loader?minimize=true!svg-fill-loader/encodeSharp!postcss-loader!sass-loader?indentedSyntax",
           fallback: 'vue-style-loader'
         })
       },
@@ -99,7 +109,7 @@ module.exports = {
         ],
       },
       {
-        test: /\.(eot|ttf|woff)/,
+        test: /\.(eot|ttf|woff|svg)/,
         loader: 'file?name=fonts/[hash].[ext]',
       }
     ],
