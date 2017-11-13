@@ -1,55 +1,37 @@
-const fs = require('fs');
+const fs = require('fs')
 const path = require('path')
 const opn = require('opn')
 const express = require('express')
 const http = require('http')
-const https = require('https');
-
+const https = require('https')
+// https://github.com/expressjs/morgan
+// https://github.com/iccicci/rotating-file-stream
+const morgan = require('morgan')
+const fileStreamRotator = require('file-stream-rotator')
 const favicon = require('serve-favicon')
-const log4js = require('log4js')
-const compression = require('compression');
+const compression = require('compression')
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
-const fileStreamRotator = require('file-stream-rotator')
-
-const env = process.env.NODE_ENV === 'development' ? 'dev' : 'pro'
-const config = require('./server.config.js')
 
 // server
+const config = require('./server.config.js')
 const app = express()
 app.use(compression())
-
+app.use(morgan('combined', {stream: fileStreamRotator.getStream({
+  date_format: 'YYYYMMDD',
+  filename: path.join(path.resolve(__dirname, '../logs/'), 'access-%DATE%.log'),
+  frequency: 'daily',
+  verbose: false
+})}))
+// app.use(config.logger())
 // uncomment after placing your favicon in /public
 app.use(favicon(path.join(__dirname, '../favicon.ico')))
-
-// https://github.com/expressjs/morgan
-// const morgan = require('morgan')
-// const accessLogStream = fileStreamRotator.getStream({
-//   date_format: 'YYYYMMDD',
-//   filename: path.join(config.logDir, 'access-%DATE%.log'),
-//   frequency: 'daily',
-//   verbose: true
-// })
-// app.use(morgan('combined', {stream: accessLogStream}))
-
-// https://nomiddlename.github.io/log4js-node/
-var logfmt = ':remote-addr - :remote-user [:date] :method :url HTTP/:http-version :status :referrer :user-agent'
-if (env === 'pro') {
-  logfmt = ':method :url HTTP/:http-version :status :referrer :user-agent'
-}
-app.use(log4js.connectLogger(config.logger('access'), {
-  level: 'auto',
-  format: logfmt,
-}));
-
 app.use(cookieParser())
 app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({
-  extended: true
-}))
+app.use(bodyParser.urlencoded({ extended: true }))
 
 // app.use(bodyParser({uploadDir:'./uploads'}));
-app.set('jsonp callback name', config.jsonpCallback || 'callback');
+app.set('jsonp callback name', config.jsonpCallback || 'callback')
 
 // view engine setup
 app.set('views', path.join(__dirname, '../src/static'))
@@ -59,9 +41,8 @@ app.set('view engine', 'jade')
 // routers
 let $root = express.static(path.join(__dirname, '../dist'))
 app.use($root)
-// app.use('/testing', require('../server/Controller/TestingController'))
-
 app.use(/^(?!\/v1).*?$/, $root)
+app.use('/v1/user', require('../server/Controller/User'))
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -2,12 +2,14 @@ const DEBUG = process.env.NODE_ENV === 'development'
 const config = require('../config')
 
 class ControllerClass {
-  constructor() {
-    this.error = false
-    this.response = false
+
+  constructor(req, response) {
+    this.response = response
+    this.post = req.body || {}
+    this.config = config
   }
 
-  ajaxReturn(data) {
+  send(data) {
     this.response.send(data)
   }
 

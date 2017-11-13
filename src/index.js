@@ -16,8 +16,8 @@ new Vue({
           name: 'Node Api',
           items: [
             {
-              name: 'normal ajax',
-              url: '/api/',
+              name: 'user ajax',
+              url: '/user/',
             },
             {
               name: 'test1-2',
@@ -69,7 +69,7 @@ new Vue({
   components: {
     sidebar,
     testVue: rs => require(['./views/testVue/'], rs),
-    api: rs => require(['./views/api/'], rs),
+    user: rs => require(['./views/user/'], rs),
   },
   mounted() {
     const router = window.location.pathname.split('/').slice(1, 3).filter(v => !!v && v != 'index.html').join('/') || 'index'

@@ -59,8 +59,7 @@ const getScript = function(src, callback) {
   if (callback) script.onload = callback
 }
 
-export default {
+module.exports = {
   post,
-  // jsonp,
   getScript,
 }

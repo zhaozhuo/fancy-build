@@ -1,5 +1,5 @@
 const mysql = require('mysql')
-const logger = require('../logger')('sql')
+const logger = require('../logger')
 const db = require('../mysql')
 const noop = function () { }
 const DEBUG = process.env.NODE_ENV === 'development'
@@ -19,10 +19,10 @@ const alias = {
 }
 // mysql where query
 function queryWhere(data, field, parents, level = 0) {
-  let res = [];
+  let res = []
   level++
   if (['$in', '$notIn'].includes(field)) {
-    return `${parents} ${alias[field]} (${data})`
+    return `${parents} ${alias[field]} (${mysql.escape(data)})`
   }
   if (['$like', '$notLike'].includes(field)) {
     return `${parents} ${alias[field]} ${mysql.escape('%' + data + '%')}`
@@ -105,6 +105,7 @@ class ModelClass {
     this.table = db.prefix + table
     this.queryWhere = queryWhere
     this.queryOrder = queryOrder
+    this.logger = logger('Model.' + table)
   }
 
   // return insertId
@@ -113,43 +114,70 @@ class ModelClass {
       let keys = Object.keys(data)
       let values = Object.values(data).map(v => mysql.escape(typeof v == 'object' ? JSON.stringify(v) : v))
       let sql = `INSERT INTO ${this.table} (${keys.join(',')}) VALUES (${values.join(',')})`
-      logger.info(sql)
 
-      try {
-        this.model.query(sql, (err, res) => {
-          if (err) {
-            logger.error(err)
-            return reject(DEBUG ? err : err.code)
-          }
-          return resolve(res.insertId)
-        })
-      } catch (error) {
-        logger.error(error)
-        return reject(error)
-      }
+      this.logger.info(sql)
+      this.model.query(sql, (err, res) => {
+        if (err) {
+          this.logger.error(err)
+          return reject(DEBUG ? err : err.code)
+        }
+        return resolve(res.insertId)
+      })
     })
   }
 
-  // id
-  // fields = ['p_id', 'p_pid'] or 'p_id,p_pid'
-  getById(id = 0, fields = []) {
+  // param.data     // {id : 12, name: 'name'}
+  // param.where
+  setByWhere(param = {}) {
     return new Promise((resolve, reject) => {
-      let _field = Array.isArray(fields) && fields.length ? fields.join(',') : '*'
-      let sql = `SELECT ${_field} from ${this.table} WHERE id = ${mysql.escape(id)}`
-      logger.info(sql)
+      let values = Object.entries(param.data).map(v => v[0] + '=' + mysql.escape(typeof v[1] == 'object' ? JSON.stringify(v[1]) : v[1]))
+      let where = param.where ? ` WHERE ${this.queryWhere(param.where)}` : ''
+      let sql = `UPDATE ${this.table} SET ${values.join(',')}${where}`
 
-      try {
-        this.model.query(sql, (err, res) => {
-          if (err) {
-            logger.error(err)
-            return reject(DEBUG ? err : err.code)
-          }
-          return resolve(res[0] || [])
-        })
-      } catch (error) {
-        logger.error(error)
-        return reject(error)
-      }
+      this.logger.info(sql)
+      this.model.query(sql, (err, res) => {
+        if (err) {
+          this.logger.error(err)
+          return reject(DEBUG ? err : err.code)
+        }
+        return resolve(res.insertId)
+      })
+    })
+  }
+
+  // return affectedRows
+  deleteByWhere(param = {}) {
+    return new Promise((resolve, reject) => {
+      let sql = `DELETE FROM ${this.table} WHERE ${this.queryWhere(param.data)}`
+      this.logger.info(sql)
+      this.model.query(sql, (err, res) => {
+        if (err) {
+          this.logger.error(err)
+          return reject(DEBUG ? err : err.code)
+        }
+        return resolve(res.affectedRows)
+      })
+    })
+  }
+
+  // param.where
+  // param.order     // 排序 ｛id: 'desc', 'time': 'asc'}
+  // param.fields    // 字段  'id,pid,time'
+  getOne(param = {}) {
+    return new Promise((resolve, reject) => {
+      let where = param.where ? ` WHERE ${this.queryWhere(param.where)}` : ''
+      let order = param.order ? ` ORDER BY ${this.queryOrder(param.order)}` : ''
+      let field = Array.isArray(param.fields) ? param.fields.join(',') : param.fields
+      let sql = `SELECT ${_field} FROM ${this.table}${_where}${_order} LIMIT 1, 1`
+
+      this.logger.info(sql)
+      this.model.query(sql, (err, res) => {
+        if (err) {
+          this.logger.error(err)
+          return reject(DEBUG ? err : err.code)
+        }
+        return resolve(res[0])
+      })
     })
   }
 
@@ -160,6 +188,7 @@ class ModelClass {
   // param.perpage   // 每页数量
   // param.count     // 是否查询总数
   getList(param = {}) {
+    let self = this
     return new Promise((resolve, reject) => {
       let {
         where,
@@ -172,8 +201,6 @@ class ModelClass {
       page = Math.max(1, parseInt(page))
       perpage = Math.max(1, parseInt(perpage))
 
-      let _table = this.table
-      let _model = this.model
       let _where = where ? ` WHERE ${this.queryWhere(where)}` : ''
       let _order = order ? ` ORDER BY ${this.queryOrder(order)}` : ''
       let _field = Array.isArray(fields) ? fields.join(',') : fields
@@ -183,56 +210,44 @@ class ModelClass {
       count ? __count() : __list()
 
       function __count() {
-        let sql = `SELECT COUNT(*) FROM ${_table}${_where}`
-        logger.info(sql)
-
-        try {
-          _model.query(sql, (err, res) => {
-            if (err) {
-              logger.error(err)
-              return reject(DEBUG ? err : err.code)
+        let sql = `SELECT COUNT(*) FROM ${self.table}${_where}`
+        self.logger.info(sql)
+        self.model.query(sql, (err, res) => {
+          if (err) {
+            self.logger.error(err)
+            return reject(DEBUG ? err : err.code)
+          }
+          count = res[0] ? res[0]['COUNT(*)'] : 0
+          return count ? __list(count) : resolve({
+            data: [],
+            pages: {
+              page,
+              perpage,
+              count,
+              pagecount: Math.ceil(count / perpage),
             }
-            count = res[0] ? res[0]['COUNT(*)'] : 0
-            return count ? __list(count) : resolve({
-              data: [],
-              pages: {
-                page,
-                perpage,
-                count,
-                pagecount: Math.ceil(count / perpage),
-              }
-            })
           })
-        } catch (error) {
-          return reject(error)
-        }
+        })
       }
 
       function __list(count = 0) {
-        let sql = `SELECT ${_field} FROM ${_table}${_where}${_order} LIMIT ${_start}, ${_end}`
-        logger.info(sql)
-
-        try {
-          _model.query(sql, (err, res) => {
-            if (err) {
-              logger.error(err)
-              return reject(DEBUG ? err : err.code)
+        let sql = `SELECT ${_field} FROM ${self.table}${_where}${_order} LIMIT ${_start}, ${_end}`
+        self.logger.info(sql)
+        self.model.query(sql, (err, res) => {
+          if (err) {
+            self.logger.error(err)
+            return reject(DEBUG ? err : err.code)
+          }
+          return resolve({
+            data: res,
+            pages: {
+              page,
+              perpage,
+              count,
+              pagecount: Math.ceil(count / perpage),
             }
-            return resolve({
-              data: res,
-              pages: {
-                page,
-                perpage,
-                count,
-                pagecount: Math.ceil(count / perpage),
-              }
-            })
           })
-        } catch (error) {
-          logger.error(error)
-          return reject(error)
-        }
-
+        })
       }
     })
   }
@@ -240,49 +255,15 @@ class ModelClass {
   // return number
   getCount(where = null) {
     return new Promise((resolve, reject) => {
-      let _where = where ? ` WHERE ${this.queryWhere(where)}` : '';
-      let sql = `SELECT COUNT(*) from ${this.table}${_where}`
-      logger.info(sql)
-
-      try {
-        this.model.query(sql, (err, res) => {
-          if (err) {
-            logger.error(err)
-            return reject(DEBUG ? err : err.code)
-          }
-          return resolve(res[0] ? res[0]['COUNT(*)'] : 0)
-        })
-      }
-      catch (error) {
-        logger.error(error)
-        reject(error)
-      }
-    })
-  }
-
-  // param.data.id
-  // param.data.values = {p_id : 12, p_name: 'name'}
-  // param.error(string)
-  // param.success(string)
-  setById(param = {}) {
-    let _error = param.error || noop;
-    let data = param.data || {};
-    if (!data.id) return _error('id required')
-    if (!data.values) return _error('values required')
-
-    let _values = [];
-    for (let i in data.values) {
-      _values.push(`${i} = ${mysql.escape(data.values[i])}`)
-    }
-    _sql = `UPDATE ${this.table} SET ${_values.join(',')} WHERE p_id=${mysql.escape(data.id)}`;
-
-    this.model.query(_sql, (err, res, fields) => {
-      if (err) {
-        logger.warn(err);
-        return _error("search error")
-      }
-      logger.info(_sql)
-      param.success && param.success(res)
+      let sql = `SELECT COUNT(*) from ${this.table}${where ? ` WHERE ${this.queryWhere(where)}` : ''}`
+      this.logger.info(sql)
+      this.model.query(sql, (err, res) => {
+        if (err) {
+          this.logger.error(err)
+          return reject(DEBUG ? err : err.code)
+        }
+        return resolve(res[0] ? res[0]['COUNT(*)'] : 0)
+      })
     })
   }
 
