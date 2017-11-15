@@ -20,8 +20,10 @@ const cssExtractTextPlugin = new ExtractTextPlugin({
 const config = require('./webpack.config.js')
 
 // add hot-reload related code to entry chunks
+if (process.env.NODE_ENV === 'development') {
   // Object.keys(config.entry).forEach(name => config.entry[name] = ['./build/dev-client'].concat(config.entry[name]))
   Object.keys(config.entry).forEach(name => config.entry[name] = [config.entry[name], 'webpack-hot-middleware/client?reload=true'])
+}
 
 module.exports = {
   entry: config.entry,
