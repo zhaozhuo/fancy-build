@@ -91,13 +91,19 @@ module.exports = {
     port: 5050,
     autoOpenBrowser: true,
     proxyTable: {
-      '/api': {
+      '/v1': {
         target: 'http://localhost:5151/',
         // changeOrigin: true,
         pathRewrite: {
-          '^/api': '/'
+          '^/v1': '/v1'
         }
-      }
+      },
+      '/': {
+        target: 'http://localhost:5050/',
+        pathRewrite: {
+          '^/(.*)$': '/'
+        },
+      },
     },
   },
   pro: {

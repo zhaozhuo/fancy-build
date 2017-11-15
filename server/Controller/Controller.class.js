@@ -1,12 +1,12 @@
 const DEBUG = process.env.NODE_ENV === 'development'
-const config = require('../config')
 
 class ControllerClass {
 
   constructor(req, response) {
+    this.req = req
     this.response = response
     this.post = req.body || {}
-    this.config = config
+    this.query = req.query || {}
   }
 
   send(data) {

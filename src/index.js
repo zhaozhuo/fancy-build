@@ -20,12 +20,12 @@ new Vue({
               url: '/user/',
             },
             {
-              name: 'test1-2',
-              url: '1-2',
+              name: 'Aes Crypto',
+              url: '/aes/',
             },
             {
-              name: 'test1-3',
-              url: '1-3',
+              name: 'xlsx upload',
+              url: '/xlsx/',
             },
           ],
         },
@@ -70,6 +70,8 @@ new Vue({
     sidebar,
     testVue: rs => require(['./views/testVue/'], rs),
     user: rs => require(['./views/user/'], rs),
+    aes: rs => require(['./views/crypto/aes.vue'], rs),
+    xlsx: rs => require(['./views/attachment/xlsx.vue'], rs),
   },
   mounted() {
     const router = window.location.pathname.split('/').slice(1, 3).filter(v => !!v && v != 'index.html').join('/') || 'index'

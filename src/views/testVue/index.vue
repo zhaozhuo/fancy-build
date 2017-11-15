@@ -33,7 +33,7 @@
 
 </style>
 
-<template lang="jade">
+<template lang="pug">
   .test
     .result
       textarea(:value="result")

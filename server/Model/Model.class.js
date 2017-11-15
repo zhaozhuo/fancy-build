@@ -126,6 +126,23 @@ class ModelClass {
     })
   }
 
+  // param.field
+  // param.values  ex: [ [1,2,3], [3,4,5] ]
+  createMultiple(param = {}) {
+    let field = Array.isArray(param.fields) ? param.fields.join(',') : param.fields
+    let values = param.values
+    let sql = `INSERT INTO ${this.table} (${field}) VALUES ?`
+
+    this.logger.info(sql)
+    this.model.query(sql, [values], (err, res) => {
+      if (err) {
+        this.logger.error(err)
+        return reject(DEBUG ? err : err.code)
+      }
+      return resolve(res)
+    })
+  }
+
   // param.data     // {id : 12, name: 'name'}
   // param.where
   setByWhere(param = {}) {

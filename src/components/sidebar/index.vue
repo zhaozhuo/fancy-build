@@ -73,7 +73,7 @@
 
 </style>
 
-<template lang="jade">
+<template lang="pug">
   .fancy-sidebar
     .fc-switch
       span(class="fa fa-id-badge" @click="state = true")

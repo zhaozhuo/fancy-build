@@ -6,12 +6,9 @@
       display: inline-block
       padding: 10px 30px
       margin: 10px 20px 10px 0
-    h2
-      font-size: 2rem
 
     .example
-      margin: 30px 0 30px
-      padding: 0 10px
+      padding: 1rem 0
     .list
       ul
         display: flex
@@ -39,14 +36,12 @@
 
 </style>
 
-<template lang="jade">
+<template lang="pug">
   .api
     h2 custom api
     .example
       button(@click="add") add
       button(@click="getList") getList
-      button(@click="markdown2pdf") markdown2pdf
-      button(@click="serverCookie") serverCookie
       button(@click="jsonpdata") jsonpdata
     .list
       ul
@@ -68,106 +63,80 @@
 </template>
 
 <script>
-import network from "lib/network";
-import util from "lib/util";
+import network from 'lib/network'
 
 export default {
   data() {
     return {
-      data: []
-    };
+      data: [],
+    }
   },
   mounted() {
-    this.getList();
+    this.getList()
   },
   methods: {
     add() {
       network.post({
-        url: "/user/add",
+        url: '/user/add',
         data: {
           name: 123,
-          aa: 234
+          aa: 234,
         },
         error: err => console.log(err),
-        success: res => res.code == "100" && this.getList()
-      });
+        success: res => res.code == '100' && this.getList(),
+      })
     },
     getList() {
       network.post({
-        url: "/user/getList",
+        url: '/user/getList',
         data: {
           page: 1,
-          perpage: 8
+          perpage: 8,
         },
         error: err => console.log(err),
-        success: res => (this.data = res.data)
-      });
+        success: res => (this.data = res.data),
+      })
     },
     delById(id) {
       network.post({
-        url: "/user/delById",
+        url: '/user/delById',
         data: {
-          id
+          id,
         },
         error: err => console.log(err),
         success: res =>
-          this.data.splice(this.data.findIndex(v => v.id == id), 1)
-      });
+          this.data.splice(this.data.findIndex(v => v.id == id), 1),
+      })
     },
     modify(id) {
       network.post({
-        url: "/user/modify",
+        url: '/user/modify',
         data: {
-          id
+          id,
         },
         error: err => console.log(err),
-        success: res =>{
+        success: res => {
           let val = this.data.find(v => v.id == id)
           val.name = res.data.name
           val.age = res.data.age
-        }
-      });
+        },
+      })
     },
-    markdown2pdf() {
-      $.ajax({
-        url: "/api/testing/markdown2pdf",
-        data: {},
-        type: "post",
-        dataType: "json",
-        timeout: 5e3,
-        error: err => console.log(err),
-        success: res => {
-          this.result = JSON.stringify(res);
-        }
-      });
-    },
-    serverCookie() {
-      $.ajax({
-        url: "/api/testing/serverCookie",
-        data: {},
-        type: "post",
-        dataType: "json",
-        timeout: 5e3,
-        error: err => console.log(err),
-        success: res => {
-          this.result = JSON.stringify(res);
-        }
-      });
-    },
-
     jsonpdata() {
-      $.ajax({
-        url: "/api/testing/jsonpdata",
-        data: {},
-        dataType: "jsonp",
-        jsonp: "callback",
-        timeout: 5e3,
+      network.post({
+        url: '/user/jsonpdata',
+        data: {
+          aa: 'abc',
+          bb: 'def',
+        },
+        type: 'jsonp',
+        jsonpCallback: 'callback',
         error: err => console.log(err),
         success: res => {
-          this.result = JSON.stringify(res);
-        }
-      });
-    }
-  }
-};
+          console.log(res)
+        },
+      })
+    },
+  },
+}
 </script>

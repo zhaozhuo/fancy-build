@@ -43,6 +43,8 @@ let $root = express.static(path.join(__dirname, '../dist'))
 app.use($root)
 app.use(/^(?!\/v1).*?$/, $root)
 app.use('/v1/user', require('../server/Controller/User'))
+app.use('/v1/aesCrypto', require('../server/Controller/AesCrypto'))
+app.use('/v1/xlsx', require('../server/Controller/Xlsx'))
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -13,6 +13,14 @@ class Application extends require('./Controller.class') {
     this[action]()
   }
 
+  jsonpdata() {
+    this.response.jsonp({
+      code: '100',
+      msg: 'success',
+      data: this.query
+    })
+  }
+
   async add() {
     try {
       let id = await UserModel.create({
@@ -130,7 +138,7 @@ class Application extends require('./Controller.class') {
   }
 
 }
-
+router.get('/jsonpdata', (req, res) => new Application(req, res, 'jsonpdata'))
 router.post('/add', (req, res) => new Application(req, res, 'add'))
 router.post('/getList', (req, res) => new Application(req, res, 'getList'))
 router.post('/delById', (req, res) => new Application(req, res, 'delById'))

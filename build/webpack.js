@@ -18,7 +18,7 @@ function _clear(path) {
   path && mkdir('-p', directory);
 }
 
-function buildPro() {
+function build_pro() {
   _clear('assets')
   _clear('views')
 
@@ -38,7 +38,7 @@ function buildPro() {
   })
 }
 
-function buildDev() {
+function build_dev() {
   const port = config.dev.port;
   // server
   const app = express()
@@ -49,6 +49,7 @@ function buildDev() {
 
   // view engine setup
   app.set('views', path.join(__dirname, '../src/static'))
+  app.set('upload', path.join(__dirname, '../upload'))
   app.set('view engine', 'jade')
 
   const compiler = webpack(webpackConfig)
@@ -126,4 +127,4 @@ function buildDev() {
   })
 }
 
-process.env.NODE_ENV === 'development' ? buildDev() : buildPro();
+process.env.NODE_ENV === 'development' ? build_dev() : build_pro();

@@ -1,9 +1,8 @@
 const express = require('express')
 const router = express.Router()
-const crypto = require("crypto");
+const crypto = require("crypto")
 
 const DEBUG = process.env.NODE_ENV === 'development'
-
 
 const algorithm = 'AES-256-ECB'
 const clearEncoding = 'utf8'
@@ -38,7 +37,27 @@ class Application extends require('./Controller.class') {
   }
 
   encryption() {
+    let { key = '', content = '' } = this.post
+    if (key.length != 32) return this.send({ code: '001', msg: 'key length must 32' })
+    if (content.length == 0) return this.send({ code: '002', msg: 'content required' })
 
+    try {
+      return this.send({ code: '100', data: encodeCipher(key, content) })
+    } catch (e) {
+      return this.send({ code: '010', msg: 'failed', })
+    }
+  }
+
+  decryption() {
+    let { key = '', content = '' } = this.post
+    if (key.length != 32) return this.send({ code: '001', msg: 'key length must 32' })
+    if (content.length == 0) return this.send({ code: '002', msg: 'content required' })
+
+    try {
+      return this.send({ code: '100', data: decodeCipher(key, content) })
+    } catch (e) {
+      return this.send({ code: '010', msg: 'failed', })
+    }
   }
 
 }
