@@ -1,21 +1,19 @@
 const glob = require("glob")
-const path = require('path');
+const path = require('path')
 const webpack = require('webpack')
 const multi = require("multi-loader")
 const FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
-
 // https://github.com/DustinJackson/html-webpack-inline-source-plugin
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin')
-
 // https://github.com/webpack/extract-text-webpack-plugin
 const ExtractTextPlugin = require("extract-text-webpack-plugin")
 const cssExtractTextPlugin = new ExtractTextPlugin({
   filename: "[name].css",
   disable: false,
   allChunks: true,
-});
+})
 
 const config = require('./webpack.config.js')
 
@@ -46,14 +44,12 @@ module.exports = {
         options: {
           loaders: {
             js: 'babel-loader',
-            css: cssExtractTextPlugin.extract({
-              use: "css-loader!postcss-loader"
-            }),
-            // sass: 'vue-style-loader!css-loader!svg-fill-loader/encodeSharp!postcss-loader!sass-loader?indentedSyntax',
+            css: cssExtractTextPlugin.extract({ use: "css-loader!postcss-loader" }),
             sass: cssExtractTextPlugin.extract({
               use: "css-loader?minimize=true!svg-fill-loader/encodeSharp!postcss-loader!sass-loader?indentedSyntax",
               fallback: 'vue-style-loader'
             }),
+            // sass: 'vue-style-loader!css-loader!svg-fill-loader/encodeSharp!postcss-loader!sass-loader?indentedSyntax',
           },
         },
       },
@@ -147,7 +143,7 @@ module.exports = {
     ];
     // html
     res = res.concat(config.htmlWebpack)
-      // server
+    // server
     if (process.env.NODE_ENV === 'development') {
       res.push(
         new webpack.HotModuleReplacementPlugin(),
