@@ -54,7 +54,7 @@ module.exports = {
   output: {
     path: dist,
     publicPath: '/',
-    filename: '[name].js',
+    filename: '[name].[hash:7].js',
     // chunkFilename: 'views/[name].js',
   },
   htmlWebpack,

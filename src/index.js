@@ -53,10 +53,6 @@ new Vue({
               name: 'test3-2',
               url: '3-2',
             },
-            {
-              name: 'test3-3',
-              url: '3-3',
-            },
           ],
         }
       },
