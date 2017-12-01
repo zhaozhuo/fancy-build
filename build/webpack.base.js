@@ -17,9 +17,8 @@ const cssExtractTextPlugin = new ExtractTextPlugin({
 const config = require('./webpack.config.js')
 const debug = process.env.NODE_ENV !== 'production'
 
-let cssloader = 'css-loader!svg-fill-loader/encodeSharp!postcss-loader!sass-loader?indentedSyntax'
-let sassloader = cssExtractTextPlugin.extract({
-  use: cssloader,
+const sassloader = cssExtractTextPlugin.extract({
+  use: 'css-loader!svg-fill-loader/encodeSharp!postcss-loader!sass-loader?indentedSyntax',
   fallback: 'vue-style-loader',
 })
 
@@ -61,7 +60,7 @@ module.exports = {
         options: {
           loaders: {
             js: 'babel-loader',
-            sass: sassloader,
+            sass: false,
           },
         },
       },
@@ -84,10 +83,6 @@ module.exports = {
       {
         test: /\.sass$/,
         use: sassloader,
-      },
-      {
-        test: /\.scss$/,
-        use: 'vue-style-loader!css-loader!svg-fill-loader/encodeSharp!postcss-loader!sass-loader?indentedSyntax',
       },
       {
         test: /\.(png|jpe?g|gif|webp)(\?.*)?$/,
