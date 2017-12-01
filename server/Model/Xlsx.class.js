@@ -53,7 +53,10 @@ class Model extends require('./Model.class') {
       tmp.push({ title: i, key: headers[i] })
     }
     let _headers = Object.keys(headers)
-      .map((v, i) => ({ v: v, position: String.fromCharCode(65 + i) + start }))
+      .map((v, i) => ({
+        v: v,
+        position: (i > 25 ? String.fromCharCode(64 + Math.floor(i / 26)) : '') + String.fromCharCode(65 + i % 26) + start
+      }))
       .reduce((prev, next) => Object.assign({}, prev, {
         [next.position]: {
           v: next.v,
@@ -66,9 +69,12 @@ class Model extends require('./Model.class') {
       }), {})
 
     let _data = data
-      .map((v, i) => tmp.map((k, j) => ({ v: v[k.key], position: String.fromCharCode(65 + j) + (i + start + 1) })))
+      .map((v, i) => tmp.map((k, j) => ({
+        v: v[k.key],
+        position: (j > 25 ? String.fromCharCode(64 + Math.floor(j / 26)) : '') + String.fromCharCode(65 + j % 26) + (i + start + 1)
+      })))
       .reduce((prev, next) => prev.concat(next))
-      .reduce((prev, next) => Object.assign({}, prev, { [next.position]: { v: next.v } }), {})
+      .reduce((prev, next) => Object.assign(prev, { [next.position]: { v: next.v } }), {})
 
     let output = Object.assign({}, _title, _headers, _data)
     // 获取所有单元格的位置
