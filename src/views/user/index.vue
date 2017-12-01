@@ -1,6 +1,7 @@
 <style lang="sass">
   @import "../../config.sass"
   .api
+    background: red
     margin: 0 35% 0 20px
     button
       display: inline-block

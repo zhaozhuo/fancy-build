@@ -19,7 +19,7 @@ const logger = name => {
   appenders[name] = {
     type: 'dateFile',
     filename: `${root}/${name}`,
-    pattern: '-yyyyMMdd.log',
+    pattern: '.yyyyMMdd.log',
     alwaysIncludePattern: true,
     maxLogSize: 1024,
   }

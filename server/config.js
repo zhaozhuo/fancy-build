@@ -6,23 +6,26 @@ const testStatus = {
   "2": 'test2',
   "3": 'test3',
 }
+const upload = {
+  temp: path.resolve(__dirname, '../upload.temp'),
+  path: path.resolve(__dirname, '../upload'),
+  url: '/upload',
+}
+const cookiePrefix = 'fb_'
+const signExpire = 3600 * 2
 
 const config = {
   dev: {
     testStatus,
-    upload: {
-      temp: path.resolve(__dirname, '../upload.temp'),
-      path: path.resolve(__dirname, '../upload'),
-      url: '/upload',
-    },
+    upload,
+    cookiePrefix,
+    signExpire,
   },
   pro: {
     testStatus,
-    upload: {
-      temp: path.resolve(__dirname, '../upload.temp'),
-      path: path.resolve(__dirname, '../upload'),
-      url: '/upload',
-    },
+    upload,
+    cookiePrefix,
+    signExpire,
   }
 }
 

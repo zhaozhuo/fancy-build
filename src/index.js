@@ -40,10 +40,6 @@ new Vue({
               name: 'test2-2',
               url: '2-2',
             },
-            {
-              name: 'test2-3',
-              url: '2-3',
-            },
           ],
         },
         mobile: {

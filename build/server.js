@@ -12,23 +12,46 @@ const favicon = require('serve-favicon')
 const compression = require('compression')
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
+const session = require('express-session')
+// Security
+const helmet = require('helmet')
 
 // server
 const config = require('./server.config.js')
 const app = express()
+
+app.use(helmet())
 app.use(compression())
-app.use(morgan('combined', {stream: fileStreamRotator.getStream({
-  date_format: 'YYYYMMDD',
-  filename: path.join(path.resolve(__dirname, '../logs/'), 'access-%DATE%.log'),
-  frequency: 'daily',
-  verbose: false
-})}))
+app.use(morgan('combined', {
+  stream: fileStreamRotator.getStream({
+    date_format: 'YYYYMMDD',
+    filename: path.join(path.resolve(__dirname, '../logs/'), 'access.%DATE%.log'),
+    frequency: 'daily',
+    verbose: false
+  })
+}))
+
+app.use((req, res, next) => {
+  app.disable('x-powered-by')
+  res.setHeader('X-Powered-By', 'Fancy Build')
+  next()
+})
 // app.use(config.logger())
 // uncomment after placing your favicon in /public
 app.use(favicon(path.join(__dirname, '../favicon.ico')))
 app.use(cookieParser())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
+
+app.use(session({
+  secret: 'fancy',
+  resave: true,
+  saveUninitialized: true,
+  cookie: {
+    httpOnly: true,
+    expires: new Date(Date.now() + 3600 * 1000)
+  }
+}))
 
 // app.use(bodyParser({uploadDir:'./uploads'}));
 app.set('jsonp callback name', config.jsonpCallback || 'callback')

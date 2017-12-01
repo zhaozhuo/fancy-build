@@ -64,7 +64,7 @@ module.exports = {
 
   // alias
   alias: {
-    lib: `${root}/src/lib/`,
+    lib: `${root}/lib/`,
     // node
     vue$: 'vue/dist/vue.js',
     zepto$: 'zepto/dist/zepto.min.js',
