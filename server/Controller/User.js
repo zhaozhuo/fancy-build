@@ -1,7 +1,11 @@
 
+const path = require('path')
 const express = require('express')
 const router = express.Router()
 const multer = require('multer')
+
+const cname = path.basename(__filename, '.js')
+const logger = require('../logger')(cname)
 
 const DEBUG = process.env.NODE_ENV === 'development'
 const UserModel = require('../Model/User.class')
@@ -30,6 +34,7 @@ class Application extends require('./Controller.class') {
       return this.send({ code: '100', data: id })
     }
     catch (err) {
+      logger.error(err)
       return this.send({ code: '010', msg: err })
     }
   }
@@ -50,6 +55,7 @@ class Application extends require('./Controller.class') {
       return this.send(res)
     }
     catch (err) {
+      logger.error(err)
       return this.send({ code: '010', msg: err })
     }
   }
@@ -67,6 +73,7 @@ class Application extends require('./Controller.class') {
       return this.send({ code: '100', data: data })
     }
     catch (err) {
+      logger.error(err)
       return this.send({ code: '010', msg: err })
     }
   }
@@ -79,6 +86,7 @@ class Application extends require('./Controller.class') {
       return this.send({ code: '100', data: res })
     }
     catch (err) {
+      logger.error(err)
       return this.send({ code: '010', msg: err })
     }
   }
