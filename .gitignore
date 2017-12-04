@@ -8,4 +8,5 @@ bower_components/
 dist/
 cert/
 upload/*
-!/upload.temp/index.html
+upload.temp
+!upload.temp/index.html
