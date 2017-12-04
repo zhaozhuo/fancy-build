@@ -9,4 +9,4 @@ dist/
 cert/
 upload/*
 upload.temp
-!upload.temp/index.html
+!upload.temp/.gitkeep
