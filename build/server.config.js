@@ -13,11 +13,11 @@ const config = {
       username: 'root',
       password: 'abc123123',
     },
-    https: {
-      port: 5252,
-      key: `${root}/cert/private.key`,
-      cert: `${root}/cert/cert.crt`,
-    },
+    // https: {
+    //   port: 5252,
+    //   key: `${root}/cert/private.key`,
+    //   cert: `${root}/cert/cert.crt`,
+    // },
     redis: {
       host: '127.0.0.1',
       port: 6379,
@@ -34,11 +34,11 @@ const config = {
       username: 'root',
       password: 'abc123123123123123',
     },
-    https: {
-      port: 8282,
-      key: `${root}/cert/private.key`,
-      cert: `${root}/cert/cert.crt`,
-    },
+    // https: {
+    //   port: 8282,
+    //   key: `${root}/cert/private.key`,
+    //   cert: `${root}/cert/cert.crt`,
+    // },
     redis: {
       host: '127.0.0.1',
       port: 6379,
