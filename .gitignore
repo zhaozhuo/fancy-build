@@ -5,9 +5,5 @@ node_modules*/
 node_modules
 
 bower_components/
-dist/
 cert/
-upload/*
-!upload/.gitkeep
-upload.temp/*
-!upload.temp/.gitkeep
+
