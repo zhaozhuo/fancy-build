@@ -7,5 +7,5 @@ node_modules
 bower_components/
 dist/
 cert/
-upload/
-upload.temp/
+upload/*
+!/upload.temp/index.html

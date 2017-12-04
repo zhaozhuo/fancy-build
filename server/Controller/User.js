@@ -39,25 +39,30 @@ class Application extends require('./Controller.class') {
     }
   }
 
-  async getList() {
+  getList() {
     let {
       page = 1,
       perpage = 20,
     } = this.post
 
-    try {
+    _promise.call(this).then(
+      res => this.send(res),
+      err => {
+        logger.error(err)
+        this.send({ code: '000', msg: err })
+      }
+    )
+
+    async function _promise() {
       let res = await UserModel.getList({
         page,
         perpage,
         order: { ctime: 'DESC' }
       })
       res.code = '100'
-      return this.send(res)
+      return res
     }
-    catch (err) {
-      logger.error(err)
-      return this.send({ code: '010', msg: err })
-    }
+
   }
 
   async modify() {
