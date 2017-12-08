@@ -71,7 +71,6 @@ module.exports = {
     jquery$: 'jquery/dist/jquery.min.js',
     swiper$: 'swiper/dist/js/swiper.min.js',
     lazyload$: '/vanilla-lazyload/dist/lazyload.min.js',
-    '@@': `${root}/src/`,
     'components': `${root}/src/components/`,
     'fancy_style': `${root}/src/config.sass`,
   },

@@ -30,5 +30,10 @@ module.exports = {
     'no-alert': 'off',
     'no-console': 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0
+  },
+  globals: {
+    'PREFIX': true,
+    'NETROOT': true,
+    '$': true,
   }
 }

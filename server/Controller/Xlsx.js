@@ -1,27 +1,21 @@
-const path = require("path")
+const path = require('path')
 const express = require('express')
 const router = express.Router()
 const multer = require('multer')
 
 const config = require('../config')
 const upload = multer({ dest: config.upload.temp })
-const DEBUG = process.env.NODE_ENV === 'development'
+// const DEBUG = process.env.NODE_ENV === 'development'
 
 const XlsxModel = require('../Model/Xlsx.class')
 
 class Application extends require('./Controller.class') {
-
   constructor(req, response, action) {
     super(req, response)
     this[action]()
   }
 
   xlsxUpload() {
-    let {
-      creator = '',
-      creator_id = 0
-    } = this.post
-
     let file = this.req.file
     if (!file) this.send({ code: '001', msg: 'file required' })
 
@@ -41,8 +35,7 @@ class Application extends require('./Controller.class') {
         list.push(n)
       })
       return this.send({ code: '100', data: { header, list } })
-    }
-    catch (error) {
+    } catch (error) {
       this.send({ code: '000', msg: error })
     }
   }
@@ -67,7 +60,6 @@ class Application extends require('./Controller.class') {
   demoDownload() {
     this.response.download(path.resolve(__dirname, '../') + '/test.xlsx', 'test.xlsx')
   }
-
 }
 
 // https://github.com/expressjs/multer
@@ -76,4 +68,4 @@ router.post('/Export', (req, res) => new Application(req, res, 'xlsxExport'))
 router.get('/demoDownload', (req, res) => new Application(req, res, 'demoDownload'))
 router.get('/demoExport', (req, res) => new Application(req, res, 'demoExport'))
 
-module.exports = router;
+module.exports = router

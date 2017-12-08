@@ -75,8 +75,6 @@ export default {
   mounted() {},
   methods: {
     encryption() {
-      console.log(1)
-      let self = this
       network.post({
         url: '/aesCrypto/encode',
         data: {
@@ -95,7 +93,6 @@ export default {
       })
     },
     decryption() {
-      let self = this
       network.post({
         url: '/aesCrypto/decode',
         data: {

@@ -2,9 +2,9 @@ const path = require('path')
 const env = process.env.NODE_ENV === 'development' ? 'dev' : 'pro'
 
 const testStatus = {
-  "1": 'test1',
-  "2": 'test2',
-  "3": 'test3',
+  '1': 'test1',
+  '2': 'test2',
+  '3': 'test3',
 }
 const upload = {
   temp: path.resolve(__dirname, '../upload.temp'),

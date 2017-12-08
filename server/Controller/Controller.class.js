@@ -1,8 +1,7 @@
 const config = require('../config')
-const DEBUG = process.env.NODE_ENV === 'development'
+// const DEBUG = process.env.NODE_ENV === 'development'
 
 class ControllerClass {
-
   constructor(req, response) {
     this.req = req
     this.response = response

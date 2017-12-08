@@ -87,42 +87,42 @@
 <script>
 const Options = {
   data: null,
-  active: "",
+  active: '',
   onSlide(bool) {},
   callback(data) {}
-};
+}
 export default {
-  props: ["cfg"],
+  props: ['cfg'],
   data() {
     return {
       state: false,
       folded: {}
-    };
+    }
   },
   created() {
     Object.keys(Options).forEach(
       i => this.cfg.hasOwnProperty(i) || this.$set(this.cfg, i, Options[i])
-    );
+    )
     for (let i of Object.keys(this.cfg.data)) {
-      this.$set(this.folded, i, this.folded[i] || false);
+      this.$set(this.folded, i, this.folded[i] || false)
     }
-    console.log(this.folded);
+    console.log(this.folded)
   },
   watch: {
     state(val) {
-      this.cfg.onSlide(val);
+      this.cfg.onSlide(val)
     }
   },
   methods: {
     _setState() {
-      this.state = !this.state;
-      this.cfg.callback(this.state, this.folded);
+      this.state = !this.state
+      this.cfg.callback(this.state, this.folded)
     },
     _toggle(k) {
-      console.log(k);
-      this.folded[k] = !this.folded[k];
+      console.log(k)
+      this.folded[k] = !this.folded[k]
     }
   }
-};
+}
 </script>
 

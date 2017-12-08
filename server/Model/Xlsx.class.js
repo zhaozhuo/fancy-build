@@ -1,10 +1,6 @@
 const xlsxReader = require('xlsx')
 
 class Model extends require('./Model.class') {
-  constructor() {
-    super()
-  }
-
   // parse xlsx file
   // return array
   getData(filepath, startRow = 1) {
@@ -13,7 +9,7 @@ class Model extends require('./Model.class') {
     try {
       let workbook = xlsxReader.readFile(filepath)
       let worksheet = workbook.Sheets[workbook.SheetNames[0]]
-      let ref = worksheet["!ref"].split(':')
+      // let ref = worksheet["!ref"].split(':')
       // let len = parseInt(ref[1].replace(/[^\d]/ig, ''))
       for (var i in worksheet) {
         if (i.indexOf('!') === -1) {
@@ -32,9 +28,8 @@ class Model extends require('./Model.class') {
         }
       }
       return res
-    }
-    catch (e) {
-      this.logger.error("getXlsxData error:" + e)
+    } catch (e) {
+      this.logger.error('getXlsxData error:' + e)
       return false
     }
   }

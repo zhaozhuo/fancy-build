@@ -115,7 +115,7 @@ export default {
         error: err => console.log(err),
         success: res => {
           if (res.code == '100') {
-            window.location = '/v1/xlsx/demoExport?filename='+ res.data
+            window.location = '/v1/xlsx/demoExport?filename=' + res.data
           } else {
             this.msg = res.msg
           }

@@ -83,246 +83,238 @@
 </template>
 
 <script>
-  export default {
-    data() {
-      return {
-        title: 'test',
-        data: {},
-        result: '',
-        aesKey: 'KqQeGpZUQ0WwcJd1eHXwZA59RoiiHrSd',
-        aesText: '',
-        aesCiphertext: ''
+export default {
+  data() {
+    return {
+      title: 'test',
+      data: {},
+      result: '',
+      aesKey: 'KqQeGpZUQ0WwcJd1eHXwZA59RoiiHrSd',
+      aesText: '',
+      aesCiphertext: '',
+    }
+  },
+  mounted() {},
+  methods: {
+    aesCrypto(type) {
+      $.ajax({
+        url: '/api/testing/aesCrypto',
+        data: {
+          type,
+          key: this.aesKey,
+          text: this.aesText,
+          ciphertext: this.aesCiphertext,
+        },
+        type: 'post',
+        dataType: 'json',
+        timeout: 5e3,
+        error: () => console.log(),
+        success: res => {
+          this.result = JSON.stringify(res)
+          if (res.code == '100') {
+            if (type === 'encryption') {
+              self.aesCiphertext = res.data
+            } else {
+              self.aesText = res.data
+            }
+          }
+        },
+      })
+    },
+    redisSet() {
+      $.ajax({
+        url: '/api/testing/redisSet',
+        type: 'post',
+        dataType: 'json',
+        timeout: 5e3,
+        error: err => console.log(err),
+        success: res => (this.result = JSON.stringify(res)),
+      })
+    },
+    fileChange(e) {
+      let file = e.target.files[0]
+      if (!/image\/\w+/.test(file.type)) {
+        alert('请选择图像类型的文件')
+        return false
       }
-    },
-    mounted() {
-
-    },
-    methods: {
-      aesCrypto(type) {
-        let self = this;
-        $.ajax({
-            url : '/api/testing/aesCrypto',
+      if (window.FileReader) {
+        let self = this
+        let fr = new FileReader()
+        fr.readAsDataURL(file)
+        fr.onloadend = function(e) {
+          $.ajax({
+            url: '/api/testing/uploadBase64',
             data: {
-              type,
-              key: this.aesKey,
-              text: this.aesText,
-              ciphertext: this.aesCiphertext,
+              base64: e.target.result,
+              type: file.type,
             },
             type: 'post',
             dataType: 'json',
             timeout: 5e3,
-            error: () => console.log(),
-            success: res => {
-              this.result = JSON.stringify(res)
-              if(res.code == '100') {
-                if(type === 'encryption'){
-                  self.aesCiphertext = res.data;
-                }else{
-                  self.aesText = res.data;
-                }
-              }
-            }
-        });
-      },
-      redisSet() {
-        $.ajax({
-          url : '/api/testing/redisSet',
-          type: 'post',
-          dataType: 'json',
-          timeout: 5e3,
-          error: err => console.log(err),
-          success: res => this.result = JSON.stringify(res),
-        });
-      },
-      fileChange(e) {
-        let file = e.target.files[0];
-        if( !/image\/\w+/.test(file.type) ) {
-          alert("请选择图像类型的文件");
-          return false;
+            error: err => (self.result = err),
+            success: res => (self.result = JSON.stringify(res)),
+          })
         }
-        if( window.FileReader ) {
-          let self = this;
-          let fr = new FileReader();
-          fr.readAsDataURL(file);
-          fr.onloadend = function(e){
-            $.ajax({
-                url : '/api/testing/uploadBase64',
-                data: {
-                  base64: e.target.result,
-                  type: file.type,
-                },
-                type: 'post',
-                dataType: 'json',
-                timeout: 5e3,
-                error: err => self.result = err,
-                success: res => self.result = JSON.stringify(res)
-            });
-          };
-        }
-      },
-      dbinit() {
-        $.ajax({
-          url : '/api/testing/dbinit',
-          type: 'post',
-          dataType: 'json',
-          timeout: 5e3,
-          error: err => console.log(err),
-          success: res => this.result = JSON.stringify(res),
-        });
-      },
-      add() {
-        $.ajax({
-          url : '/api/testing/add',
-          data: {
-            name: 123,
-            aa: 234,
-          },
-          type: 'post',
-          dataType: 'json',
-          timeout: 5e3,
-          error: err => console.log(err),
-          success: res => this.result = JSON.stringify(res),
-        });
-      },
-      delById() {
-        $.ajax({
-          url : '/api/testing/delById',
-          data: {
-            id: 3,
-          },
-          type: 'post',
-          dataType: 'json',
-          timeout: 5e3,
-          error: err => console.log(err),
-          success: res => this.result = JSON.stringify(res),
-        });
-      },
-      delByWhere() {
-        $.ajax({
-          url : '/api/testing/delByWhere',
-          data: {
-            id: {
-              $lt: 10
-            },
-
-          },
-          type: 'post',
-          dataType: 'json',
-          timeout: 5e3,
-          error: err => console.log(err),
-          success: res => this.result = JSON.stringify(res),
-        });
-      },
-      getById() {
-        $.ajax({
-          url : '/api/testing/getById',
-          data: {
-            id: 12
-          },
-          type: 'post',
-          dataType: 'json',
-          timeout: 5e3,
-          error: err => console.log(err),
-          success: res => this.result = JSON.stringify(res),
-        });
-      },
-      getOne() {
-        $.ajax({
-          url : '/api/testing/getOne',
-          data: {
-            id: {
-              $gt: 20,
-            }
-          },
-          type: 'post',
-          dataType: 'json',
-          timeout: 5e3,
-          error: err => console.log(err),
-          success: res => this.result = JSON.stringify(res),
-        });
-      },
-      getCount() {
-        $.ajax({
-          url : '/api/testing/getCount',
-          data: {
-            id: {
-              $lt: 11,
-            }
-          },
-          type: 'post',
-          dataType: 'json',
-          timeout: 5e3,
-          error: err => console.log(err),
-          success: res => this.result = JSON.stringify(res),
-        });
-      },
-      getList() {
-        $.ajax({
-          url : '/api/testing/getList',
-          data: {
-            count: true,
-            page: 1,
-            perpage: 8,
-            order: [
-              ['pid', 'DESC'],
-            ],
-            where: {
-              pid: {
-               $lt: 10,
-              },
-            }
-          },
-          type: 'post',
-          dataType: 'json',
-          timeout: 5e3,
-          error: err => console.log(err),
-          success: res => {
-            this.result = JSON.stringify(res)
-          }
-        });
-      },
-      markdown2pdf() {
-        $.ajax({
-          url : '/api/testing/markdown2pdf',
-          data: {},
-          type: 'post',
-          dataType: 'json',
-          timeout: 5e3,
-          error: err => console.log(err),
-          success: res => {
-
-            this.result = JSON.stringify(res)
-          }
-        });
-      },
-      serverCookie() {
-        $.ajax({
-          url : '/api/testing/serverCookie',
-          data: {},
-          type: 'post',
-          dataType: 'json',
-          timeout: 5e3,
-          error: err => console.log(err),
-          success: res => {
-            this.result = JSON.stringify(res)
-          }
-        });
-      },
-
-      jsonpdata() {
-        $.ajax({
-          url : '/api/testing/jsonpdata',
-          data: {},
-          dataType: 'jsonp',
-          jsonp: 'callback',
-          timeout: 5e3,
-          error: err => console.log(err),
-          success: res => {
-            this.result = JSON.stringify(res)
-          }
-        });
       }
-
     },
-  };
+    dbinit() {
+      $.ajax({
+        url: '/api/testing/dbinit',
+        type: 'post',
+        dataType: 'json',
+        timeout: 5e3,
+        error: err => console.log(err),
+        success: res => (this.result = JSON.stringify(res)),
+      })
+    },
+    add() {
+      $.ajax({
+        url: '/api/testing/add',
+        data: {
+          name: 123,
+          aa: 234,
+        },
+        type: 'post',
+        dataType: 'json',
+        timeout: 5e3,
+        error: err => console.log(err),
+        success: res => (this.result = JSON.stringify(res)),
+      })
+    },
+    delById() {
+      $.ajax({
+        url: '/api/testing/delById',
+        data: {
+          id: 3,
+        },
+        type: 'post',
+        dataType: 'json',
+        timeout: 5e3,
+        error: err => console.log(err),
+        success: res => (this.result = JSON.stringify(res)),
+      })
+    },
+    delByWhere() {
+      $.ajax({
+        url: '/api/testing/delByWhere',
+        data: {
+          id: {
+            $lt: 10,
+          },
+        },
+        type: 'post',
+        dataType: 'json',
+        timeout: 5e3,
+        error: err => console.log(err),
+        success: res => (this.result = JSON.stringify(res)),
+      })
+    },
+    getById() {
+      $.ajax({
+        url: '/api/testing/getById',
+        data: {
+          id: 12,
+        },
+        type: 'post',
+        dataType: 'json',
+        timeout: 5e3,
+        error: err => console.log(err),
+        success: res => (this.result = JSON.stringify(res)),
+      })
+    },
+    getOne() {
+      $.ajax({
+        url: '/api/testing/getOne',
+        data: {
+          id: {
+            $gt: 20,
+          },
+        },
+        type: 'post',
+        dataType: 'json',
+        timeout: 5e3,
+        error: err => console.log(err),
+        success: res => (this.result = JSON.stringify(res)),
+      })
+    },
+    getCount() {
+      $.ajax({
+        url: '/api/testing/getCount',
+        data: {
+          id: {
+            $lt: 11,
+          },
+        },
+        type: 'post',
+        dataType: 'json',
+        timeout: 5e3,
+        error: err => console.log(err),
+        success: res => (this.result = JSON.stringify(res)),
+      })
+    },
+    getList() {
+      $.ajax({
+        url: '/api/testing/getList',
+        data: {
+          count: true,
+          page: 1,
+          perpage: 8,
+          order: [['pid', 'DESC']],
+          where: {
+            pid: {
+              $lt: 10,
+            },
+          },
+        },
+        type: 'post',
+        dataType: 'json',
+        timeout: 5e3,
+        error: err => console.log(err),
+        success: res => {
+          this.result = JSON.stringify(res)
+        },
+      })
+    },
+    markdown2pdf() {
+      $.ajax({
+        url: '/api/testing/markdown2pdf',
+        data: {},
+        type: 'post',
+        dataType: 'json',
+        timeout: 5e3,
+        error: err => console.log(err),
+        success: res => {
+          this.result = JSON.stringify(res)
+        },
+      })
+    },
+    serverCookie() {
+      $.ajax({
+        url: '/api/testing/serverCookie',
+        data: {},
+        type: 'post',
+        dataType: 'json',
+        timeout: 5e3,
+        error: err => console.log(err),
+        success: res => {
+          this.result = JSON.stringify(res)
+        },
+      })
+    },
+
+    jsonpdata() {
+      $.ajax({
+        url: '/api/testing/jsonpdata',
+        data: {},
+        dataType: 'jsonp',
+        jsonp: 'callback',
+        timeout: 5e3,
+        error: err => console.log(err),
+        success: res => {
+          this.result = JSON.stringify(res)
+        },
+      })
+    },
+  },
+}
 </script>

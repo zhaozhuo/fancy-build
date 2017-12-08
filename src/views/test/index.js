@@ -1,1 +1,1 @@
-require('./style.sass');
+require('./style.sass')

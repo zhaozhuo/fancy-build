@@ -1,6 +1,5 @@
-const mysql = require("mysql")
+const mysql = require('mysql')
 const config = require('../build/server.config')
-const logger = require('./logger')('sql')
 const pool = mysql.createPool({
   host: config.mysql.host,
   port: config.mysql.port,

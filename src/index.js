@@ -1,11 +1,11 @@
-require('./css.sass')
-// node modules
-require('script!zepto')
-require("font-awesome/css/font-awesome.css");
 import Vue from 'vue'
 import sidebar from 'components/sidebar/'
+require('./css.sass')
+// node modules
+require('zepto$')
+require('font-awesome/css/font-awesome.css')
 
-new Vue({
+Vue({
   el: '.viewport',
   data: {
     appview: '',
@@ -69,8 +69,9 @@ new Vue({
     const router = window.location.pathname.split('/').slice(1, 3).filter(v => !!v && v != 'index.html').join('/') || 'index'
     if (!(router in this.$options.components)) {
       window.history.replaceState(null, '', '/')
-      return this.appview = 'index'
+      this.appview = 'index'
+      return
     }
-    this.appview = router;
+    this.appview = router
   },
 })

@@ -53,12 +53,6 @@ function buildDev() {
   app.set('upload', path.join(__dirname, '../upload'))
   app.set('view engine', 'jade')
 
-  // proxy
-  const proxyTable = config.dev.proxyTable
-  proxyTable && Object.keys(proxyTable).forEach(key => app.use(proxyMiddleware(key, proxyTable[key])))
-
-  // assets
-  config.assetsCopy.data.forEach(value => app.use('/' + value.to, express.static(value.from)))
 
   const compiler = webpack(webpackConfig)
   const devMiddleware = require('webpack-dev-middleware')(compiler, {
@@ -72,6 +66,13 @@ function buildDev() {
   })
   app.use(devMiddleware)
   app.use(hotMiddleware)
+
+  // proxy
+  const proxyTable = config.dev.proxyTable
+  proxyTable && Object.keys(proxyTable).forEach(key => app.use(proxyMiddleware(key, proxyTable[key])))
+
+  // assets
+  config.assetsCopy.data.forEach(value => app.use('/' + value.to, express.static(value.from)))
 
   console.log('> Starting dev server...')
   devMiddleware.waitUntilValid(() => {
@@ -107,16 +108,14 @@ function buildDev() {
     switch (error.code) {
       case 'EACCES':
         console.error(port + ' requires elevated privileges')
-        process.exit(1)
         break
       case 'EADDRINUSE':
         console.error(port + ' is already in use')
-        process.exit(1)
         break
       default:
         throw error
     }
-
+    process.exit(1)
   })
 }
 
