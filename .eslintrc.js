@@ -29,6 +29,7 @@ module.exports = {
     'eqeqeq': 'off',
     'no-alert': 'off',
     'no-console': 'off',
+    'no-new': 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0
   },
   globals: {

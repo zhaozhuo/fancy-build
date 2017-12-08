@@ -2,10 +2,9 @@ import Vue from 'vue'
 import sidebar from 'components/sidebar/'
 require('./css.sass')
 // node modules
-require('zepto$')
 require('font-awesome/css/font-awesome.css')
 
-Vue({
+new Vue({
   el: '.viewport',
   data: {
     appview: '',

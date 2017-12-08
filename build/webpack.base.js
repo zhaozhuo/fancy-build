@@ -128,10 +128,10 @@ module.exports = {
         NETROOT: config.networkRoot,
       }),
       cssExtractTextPlugin,
-      // new webpack.ProvidePlugin({
-      //   $: 'jquery',
-      //   jQuery: 'jquery'
-      // }),
+      new webpack.ProvidePlugin({
+        $: 'zepto',
+        zepto: 'zepto'
+      }),
       // https://github.com/mishoo/UglifyJS2
       new webpack.optimize.UglifyJsPlugin({
         compress: {

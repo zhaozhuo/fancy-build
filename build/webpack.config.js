@@ -66,11 +66,9 @@ module.exports = {
   alias: {
     lib: `${root}/lib/`,
     // node
-    vue$: 'vue/dist/vue.js',
-    zepto$: 'zepto/dist/zepto.min.js',
-    jquery$: 'jquery/dist/jquery.min.js',
-    swiper$: 'swiper/dist/js/swiper.min.js',
-    lazyload$: '/vanilla-lazyload/dist/lazyload.min.js',
+    vue: 'vue/dist/vue.js',
+    swiper: 'swiper/dist/js/swiper.min.js',
+    lazyload: '/vanilla-lazyload/dist/lazyload.min.js',
     'components': `${root}/src/components/`,
     'fancy_style': `${root}/src/config.sass`,
   },
