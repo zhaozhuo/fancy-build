@@ -1,4 +1,4 @@
-require('shelljs/global')
+const shelljs = require('shelljs')
 const ora = require('ora')
 const opn = require('opn')
 const path = require('path')
@@ -14,16 +14,17 @@ const spinner = ora('building for ' + process.env.NODE_ENV + ' ...')
 
 function _clear(path) {
   let directory = `${config.output.path}/${path || '*'}`
-  rm('-rf', directory);
-  path && mkdir('-p', directory);
+  console.log(directory)
+  shelljs.rm('-rf', directory)
+  path && shelljs.mkdir('-p', directory)
 }
 
-function build_pro() {
-  _clear('assets')
-  _clear('views')
+function buildPro() {
+  _clear('assets/')
+  _clear('views/')
 
   spinner.start()
-  webpack(webpackConfig, function (err, stats) {
+  webpack(webpackConfig, (err, stats) => {
     spinner.stop()
     if (err) throw err
     process.stdout.write(stats.toString({
@@ -38,33 +39,19 @@ function build_pro() {
   })
 }
 
-function build_dev() {
-  const port = config.dev.port;
+function buildDev() {
+  const port = config.dev.port
   // server
   const app = express()
 
   // app.use(express.compress())
   // uncomment after placing your favicon in /public
-  //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')))
+  app.use(favicon(path.join(__dirname, '../favicon.ico')))
 
   // view engine setup
   app.set('views', path.join(__dirname, '../src/static'))
   app.set('upload', path.join(__dirname, '../upload'))
   app.set('view engine', 'jade')
-
-  const compiler = webpack(webpackConfig)
-  const devMiddleware = require('webpack-dev-middleware')(compiler, {
-    publicPath: webpackConfig.output.publicPath,
-    quiet: false,
-    noInfo: true,
-  })
-  const hotMiddleware = require('webpack-hot-middleware')(compiler, {
-    log: false,
-    heartbeat: 2000,
-  });
-
-  app.use(devMiddleware)
-  app.use(hotMiddleware)
 
   // proxy
   const proxyTable = config.dev.proxyTable
@@ -73,9 +60,22 @@ function build_dev() {
   // assets
   config.assetsCopy.data.forEach(value => app.use('/' + value.to, express.static(value.from)))
 
+  const compiler = webpack(webpackConfig)
+  const devMiddleware = require('webpack-dev-middleware')(compiler, {
+    publicPath: webpackConfig.output.publicPath,
+    quiet: true,
+    noInfo: false,
+  })
+  const hotMiddleware = require('webpack-hot-middleware')(compiler, {
+    log: false,
+    heartbeat: 2000,
+  })
+  app.use(devMiddleware)
+  app.use(hotMiddleware)
+
   console.log('> Starting dev server...')
   devMiddleware.waitUntilValid(() => {
-    let uri = 'http://localhost:' + config.dev.port
+    let uri = 'http://localhost:' + port
     console.log('> Listening at ' + uri + '\n')
     config.dev.autoOpenBrowser && opn(uri)
   })
@@ -116,7 +116,8 @@ function build_dev() {
       default:
         throw error
     }
+
   })
 }
 
-process.env.NODE_ENV === 'development' ? build_dev() : build_pro();
+process.env.NODE_ENV === 'development' ? buildDev() : buildPro()

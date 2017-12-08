@@ -47,7 +47,7 @@ function queryWhere(data, field, parents, level = 0) {
 }
 function queryOrder(data) {
   if (typeof data === 'string') {
-    return data;
+    return data
   }
   let res = []
   for (let i in data) {
@@ -55,48 +55,38 @@ function queryOrder(data) {
   }
   return res.join(',')
 }
-// test
-function testQuery() {
-  let where = {
-    valid: '1',
-    name: {
-      $like: 'name'
-    },
-    status: {
-      $notIn: [1, 2, 3, 0, 13]
-    },
-    ctime: {
-      $gt: '2017-08-01 00:00:00',
-      $lt: '2017-09-07 00:00:00',
-    },
-    $or: [
-      { id1: 10 },
-      { id2: 10 },
-      {
-        id3: {
-          $gt: 13,
-          $lt: 15,
-        },
-      },
-      {
-        id5: {
-          $in: [1, 2, 3, 4],
-          $like: '"\\like'
-        }
-      }
-    ],
-  }
-  let order = {
-    id: 'desc',
-    time: 'asc',
-  }
-  console.log(queryWhere(where))
-  console.log(queryOrder(order))
-}
+//   let where = {
+//     valid: '1',
+//     name: {
+//       $like: 'name'
+//     },
+//     status: {
+//       $notIn: [1, 2, 3, 0, 13]
+//     },
+//     ctime: {
+//       $gt: '2017-08-01 00:00:00',
+//       $lt: '2017-09-07 00:00:00',
+//     },
+//     $or: [
+//       { id1: 10 },
+//       { id2: 10 },
+//       {
+//         id3: {
+//           $gt: 13,
+//           $lt: 15,
+//         },
+//       },
+//       {
+//         id5: {
+//           $in: [1, 2, 3, 4],
+//           $like: '"\\like'
+//         }
+//       }
+//     ],
+//   }
 
 // Basic MODEL
 class ModelClass {
-
   constructor(table) {
     this.model = db.pool
     this.table = db.prefix + table
@@ -309,6 +299,6 @@ class ModelClass {
     }
     return promise
   }
-
 }
+
 module.exports = ModelClass

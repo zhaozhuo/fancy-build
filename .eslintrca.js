@@ -4,9 +4,11 @@ module.exports = {
   parserOptions: {
     sourceType: 'module'
   },
-  extends: 'airbnb-base',
+  extends: 'standard',
   env: {
     browser: true,
+    commonjs: true,
+    es6: true
   },
   plugins: [
     'html'
@@ -20,22 +22,13 @@ module.exports = {
     // allow debugger during development
     'semi': ['error', 'never'],
     'max-len': ['error', 160, 2],
-    'no-param-reassign': ["error", { "props": false }],
-    'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
-    'no-restricted-syntax': process.env.NODE_ENV === 'production' ? [
-      2,
-      'DebuggerStatement',
-      'ForInStatement',
-      'LabeledStatement',
-      'WithStatement',
-    ] : [
-        2,
-        'ForInStatement',
-        'LabeledStatement',
-        'WithStatement',
-      ],
+    'no-param-reassign': ['error', { 'props': false }],
+    'space-before-function-paren': ['error', 'never'],
+    'comma-dangle': ['error', 'only-multiline'],
+    'yoda': 'off',
+    'eqeqeq': 'off',
     'no-alert': 'off',
-    'no-console': 'off'
-
+    'no-console': 'off',
+    'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0
   }
 }

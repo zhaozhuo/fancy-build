@@ -29,7 +29,6 @@ if (process.env.NODE_ENV === 'development') {
   })
 }
 
-
 module.exports = {
   entry: config.entry,
   output: config.output,

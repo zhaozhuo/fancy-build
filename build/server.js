@@ -1,6 +1,5 @@
 const fs = require('fs')
 const path = require('path')
-const opn = require('opn')
 const express = require('express')
 const http = require('http')
 const https = require('https')
@@ -70,14 +69,14 @@ app.use('/v1/aesCrypto', require('../server/Controller/AesCrypto'))
 app.use('/v1/xlsx', require('../server/Controller/Xlsx'))
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
+app.use((req, res, next) => {
   let err = new Error('Not Found')
   err.status = 404
   next(err)
 })
 
 // error handler
-app.use(function (err, req, res, next) {
+app.use((err, req, res, next) => {
   // set locals, only providing error in development
   res.locals.message = err.message
   res.locals.error = process.env.NODE_ENV === 'production' ? {} : err
@@ -91,7 +90,7 @@ server.listen(config.port)
 server.on('error', err => onError(err, config.port))
 server.on('listening', () => onListening(server, 'http'))
 
-var httpsServer = {};
+var httpsServer = {}
 if (config.https) {
   const credentials = {
     key: fs.readFileSync(config.https.key, 'utf8'),
@@ -113,15 +112,14 @@ function onError(error, port) {
   switch (error.code) {
     case 'EACCES':
       console.error(port + ' requires elevated privileges')
-      process.exit(1)
       break
     case 'EADDRINUSE':
       console.error(port + ' is already in use')
-      process.exit(1)
       break
     default:
       throw error
   }
+  process.exit(1)
 }
 
 function onListening(sev, pro = 'http') {
