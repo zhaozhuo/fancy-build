@@ -91,7 +91,7 @@ export default {
         url: '/user/getList',
         data: {
           page: 1,
-          perpage: 8,
+          perpage: 10,
         },
         error: err => console.log(err),
         success: res => (this.data = res.data),

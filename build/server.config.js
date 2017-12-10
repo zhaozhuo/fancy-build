@@ -1,5 +1,3 @@
-const path = require('path')
-const root = path.resolve(__dirname, '../')
 const env = process.env.NODE_ENV === 'development' ? 'dev' : 'pro'
 
 const config = {
@@ -9,7 +7,7 @@ const config = {
     mysql: {
       host: 'localhost',
       port: 3306,
-      database: 'myapp',
+      database: 'fancy',
       username: 'root',
       password: 'abc123123',
     },
@@ -30,7 +28,7 @@ const config = {
     mysql: {
       host: 'localhost',
       port: 3306,
-      database: 'myapp',
+      database: 'fancy',
       username: 'root',
       password: 'abc123123123123123',
     },

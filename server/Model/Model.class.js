@@ -16,9 +16,9 @@ const alias = {
   $notLike: 'NOT LIKE',
 }
 // mysql where query
-function queryWhere(data, field, parents, level = 0) {
+function queryWhere(data, field, parents, le = 0) {
   let res = []
-  level++
+  let level = le + 1
   if (['$in', '$notIn'].includes(field)) {
     return `${parents} ${alias[field]} (${mysql.escape(data)})`
   }
@@ -84,6 +84,30 @@ function queryOrder(data) {
 //       }
 //     ],
 //   }
+
+function htmlspecialchars(str) {
+  if (typeof str !== 'string' || !str) return str
+  let map = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
+  }
+  return str.replace(/[&<>"']/g, m => map[m])
+}
+
+function htmlspecialchars_decode(str) {
+  if (typeof str !== 'string' || !str) return str
+  let map = {
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&quot;': '"',
+    '&#039;': "'",
+  }
+  return str.replace(/[&<>"']/g, m => map[m])
+}
 
 // Basic MODEL
 class ModelClass {
