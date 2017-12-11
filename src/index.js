@@ -1,8 +1,11 @@
 import Vue from 'vue'
 import sidebar from 'components/sidebar/'
+import errorcollect from 'lib/errorcollect/'
 require('./css.sass')
 // node modules
 require('font-awesome/css/font-awesome.css')
+
+window.onerror = errorcollect
 
 new Vue({
   el: '.viewport',

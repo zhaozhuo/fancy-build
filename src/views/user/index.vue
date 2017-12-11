@@ -83,7 +83,10 @@ export default {
           aa: 234,
         },
         error: err => console.log(err),
-        success: res => res.code == '100' && this.getList(),
+        success: res => {
+          res.code == '100' && this.getList()
+          console.log(abc)
+        }
       })
     },
     getList() {
