@@ -53,7 +53,6 @@ function buildDev() {
   app.set('upload', path.join(__dirname, '../upload'))
   app.set('view engine', 'jade')
 
-
   const compiler = webpack(webpackConfig)
   const devMiddleware = require('webpack-dev-middleware')(compiler, {
     publicPath: webpackConfig.output.publicPath,

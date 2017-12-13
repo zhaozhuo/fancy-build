@@ -2,6 +2,35 @@ const mysql = require('mysql')
 const db = require('../mysql')
 const logger = require('../logger')('Model')
 
+function htmlspecialchars(str) {
+  if (!str || typeof str !== 'string') return str
+  let map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }
+  return str.replace(/[&<>"']/g, m => map[m])
+}
+function htmlspecialcharsDecode(str) {
+  if (!str || typeof str !== 'string') return str
+  let map = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#039;': "'" }
+  return str.replace(/&amp;|&lt;|&gt;|&quot;|&#039;/g, m => map[m])
+}
+
+function safeEscape(data, specialchars = true) {
+  if (!specialchars) {
+    return mysql.escape(data)
+  }
+  if (typeof data === 'object') {
+    if (Array.isArray(data)) {
+      data.forEach(v => v = htmlspecialchars(v))
+    } else {
+      for (let i in data) {
+        data[i] = htmlspecialchars(data[i])
+      }
+    }
+    return mysql.escape(data)
+  } else {
+    return mysql.escape(htmlspecialchars(data))
+  }
+}
+
 const alias = {
   $or: 'or',
   $gt: '>',
@@ -20,13 +49,13 @@ function queryWhere(data, field, parents, le = 0) {
   let res = []
   let level = le + 1
   if (['$in', '$notIn'].includes(field)) {
-    return `${parents} ${alias[field]} (${mysql.escape(data)})`
+    return `${parents} ${alias[field]} (${safeEscape(data)})`
   }
   if (['$like', '$notLike'].includes(field)) {
-    return `${parents} ${alias[field]} ${mysql.escape('%' + data + '%')}`
+    return `${parents} ${alias[field]} ${safeEscape('%' + data + '%')}`
   }
   if (['$eq', '$ne', '$gte', '$gt', '$lte', '$lt'].includes(field)) {
-    return [parents, mysql.escape(data)].join(` ${alias[field]} `)
+    return [parents, safeEscape(data)].join(` ${alias[field]} `)
   }
   if (typeof data === 'object') {
     if (Array.isArray(data)) {
@@ -43,7 +72,7 @@ function queryWhere(data, field, parents, le = 0) {
     }
     return res.length > 1 && level > 1 ? `(${res.join(' AND ')})` : res.join(' AND ')
   }
-  return [field, mysql.escape(data)].join(' = ')
+  return [field, safeEscape(data)].join(' = ')
 }
 function queryOrder(data) {
   if (typeof data === 'string') {
@@ -85,30 +114,6 @@ function queryOrder(data) {
 //     ],
 //   }
 
-function htmlspecialchars(str) {
-  if (typeof str !== 'string' || !str) return str
-  let map = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#039;',
-  }
-  return str.replace(/[&<>"']/g, m => map[m])
-}
-
-function htmlspecialchars_decode(str) {
-  if (typeof str !== 'string' || !str) return str
-  let map = {
-    '&amp;': '&',
-    '&lt;': '<',
-    '&gt;': '>',
-    '&quot;': '"',
-    '&#039;': "'",
-  }
-  return str.replace(/[&<>"']/g, m => map[m])
-}
-
 // Basic MODEL
 class ModelClass {
   constructor(table) {
@@ -116,12 +121,14 @@ class ModelClass {
     this.table = db.prefix + table
     this.queryWhere = queryWhere
     this.queryOrder = queryOrder
+    this.htmlspecialchars = htmlspecialchars
+    this.htmlspecialcharsDecode = htmlspecialcharsDecode
   }
 
   // return insertId
   create(data = {}, callback) {
     let keys = Object.keys(data)
-    let values = Object.values(data).map(v => mysql.escape(typeof v == 'object' ? JSON.stringify(v) : v))
+    let values = Object.values(data).map(v => typeof v == 'object' ? JSON.stringify(safeEscape(v)) : safeEscape(v))
     let sql = `INSERT INTO ${this.table} (${keys.join(',')}) VALUES (${values.join(',')})`
     logger.info(sql)
 
@@ -167,7 +174,9 @@ class ModelClass {
   // param.data     // {id : 12, name: 'name'}
   // param.where
   setByWhere(param = {}, callback) {
-    let values = Object.entries(param.data).map(v => v[0] + '=' + mysql.escape(typeof v[1] == 'object' ? JSON.stringify(v[1]) : v[1]))
+    let values = Object.entries(param.data).map(v => {
+      return v[0] + '=' + (typeof v[1] == 'object' ? JSON.stringify(safeEscape(v[1])) : safeEscape(v[1]))
+    })
     let where = param.where ? ` WHERE ${this.queryWhere(param.where)}` : ''
     let sql = `UPDATE ${this.table} SET ${values.join(',')}${where}`
     logger.info(sql)

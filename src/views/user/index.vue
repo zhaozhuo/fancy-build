@@ -52,7 +52,7 @@
           li.op Operate
       ul(v-for="v in data")
         li.id {{v.id}}
-        li.name {{v.name}}
+        li.name(v-html="v.name")
         li.age {{v.age}}
         li.ctime {{v.ctime}}
         li.op
@@ -85,7 +85,8 @@ export default {
         error: err => console.log(err),
         success: res => {
           res.code == '100' && this.getList()
-          console.log(abc)
+
+          console.log(res.abc.trim())
         }
       })
     },
