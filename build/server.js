@@ -64,6 +64,7 @@ app.set('view engine', 'jade')
 let $root = express.static(path.join(__dirname, '../dist'))
 app.use($root)
 app.use(/^(?!\/v1).*?$/, $root)
+
 app.use('/v1/user', require('../server/Controller/User'))
 app.use('/v1/aesCrypto', require('../server/Controller/AesCrypto'))
 app.use('/v1/xlsx', require('../server/Controller/Xlsx'))
@@ -98,7 +99,7 @@ if (config.https) {
     // ciphers : "ECDHE-RSA-AES128-GCM-SHA256:HIGH:!aNULL:!MD5:!RC4:!DHE",
     // honorCipherOrder : true
   }
-  httpsServer = https.createServer(credentials, app);
+  httpsServer = https.createServer(credentials, app)
   httpsServer.listen(config.https.port)
   httpsServer.on('error', err => onError(err, config.https.port))
   httpsServer.on('listening', () => onListening(httpsServer, 'https'))

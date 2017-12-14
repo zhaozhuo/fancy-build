@@ -25,7 +25,8 @@ class Application extends require('./Controller.class') {
   async add() {
     try {
       let id = await UserModel.create({
-        name: 'name' + Math.floor(Math.random() * 1000),
+        // name: 'name' + Math.floor(Math.random() * 1000),
+        name: '</li><div>w</div>',
         age: Math.floor(Math.random() * 100),
       })
       return this.send({ code: '100', data: id })
@@ -62,7 +63,8 @@ class Application extends require('./Controller.class') {
 
   async modify() {
     let data = {
-      name: 'name' + Math.floor(Math.random() * 1000),
+      name: '<script>alert(1)</script>',
+      // name: 'name' + Math.floor(Math.random() * 1000),
       age: Math.floor(Math.random() * 100),
     }
     try {

@@ -126,9 +126,13 @@ class ModelClass {
   }
 
   // return insertId
-  create(data = {}, callback) {
+  create(data = {}, callback, htmlEscape = true) {
+    let htmlesc = typeof callback === 'function' ? htmlEscape : callback
+
     let keys = Object.keys(data)
-    let values = Object.values(data).map(v => typeof v == 'object' ? JSON.stringify(safeEscape(v)) : safeEscape(v))
+    let values = Object.values(data).map(v => {
+      return typeof v == 'object' ? JSON.stringify(safeEscape(v), htmlesc) : safeEscape(v, htmlesc)
+    })
     let sql = `INSERT INTO ${this.table} (${keys.join(',')}) VALUES (${values.join(',')})`
     logger.info(sql)
 
@@ -141,7 +145,7 @@ class ModelClass {
         return resolve(res.insertId)
       })
     })
-    if (callback && typeof callback == 'function') {
+    if (callback && typeof callback === 'function') {
       promise.then(callback.bind(null, null), callback)
     }
     return promise
@@ -173,9 +177,10 @@ class ModelClass {
 
   // param.data     // {id : 12, name: 'name'}
   // param.where
-  setByWhere(param = {}, callback) {
+  setByWhere(param = {}, callback, htmlEscape = true) {
+    let htmlesc = typeof callback === 'function' ? htmlEscape : callback
     let values = Object.entries(param.data).map(v => {
-      return v[0] + '=' + (typeof v[1] == 'object' ? JSON.stringify(safeEscape(v[1])) : safeEscape(v[1]))
+      return v[0] + '=' + (typeof v[1] == 'object' ? JSON.stringify(safeEscape(v[1], htmlesc)) : safeEscape(v[1], htmlesc))
     })
     let where = param.where ? ` WHERE ${this.queryWhere(param.where)}` : ''
     let sql = `UPDATE ${this.table} SET ${values.join(',')}${where}`
@@ -187,7 +192,7 @@ class ModelClass {
           logger.error(err)
           return reject(err.code)
         }
-        return resolve(res.insertId)
+        return resolve(res.changedRows)
       })
     })
     if (callback && typeof callback == 'function') {

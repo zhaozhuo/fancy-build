@@ -85,8 +85,6 @@ export default {
         error: err => console.log(err),
         success: res => {
           res.code == '100' && this.getList()
-
-          console.log(res.abc.trim())
         }
       })
     },
@@ -121,6 +119,7 @@ export default {
         error: err => console.log(err),
         success: res => {
           let val = this.data.find(v => v.id == id)
+          console.log(res.data)
           val.name = res.data.name
           val.age = res.data.age
         },
