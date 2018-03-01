@@ -12,7 +12,6 @@ class ControllerClass {
   send(data) {
     this.response.send(data)
   }
-
   getCookie(key) {
     let _key = config.cookiePrefix + key
     return this.req.cookies[_key]
@@ -27,18 +26,6 @@ class ControllerClass {
     let _key = config.cookiePrefix + key
     let _opt = { expires, path, httpOnly }
     this.response.cookie(_key, value, _opt)
-  }
-
-  getUserInfo() {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        this.user = {
-          name: 'denver',
-          mobile: '133000000000'
-        }
-        resolve()
-      }, 2000)
-    })
   }
 }
 

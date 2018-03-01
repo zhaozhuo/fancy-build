@@ -1,5 +1,6 @@
+'use strict'
 const mysql = require('mysql')
-const config = require('../build/server.config')
+const config = require('../config/server')
 const pool = mysql.createPool({
   host: config.mysql.host,
   port: config.mysql.port,

@@ -1,3 +1,4 @@
+'use strict'
 const fs = require('fs')
 const path = require('path')
 const log4js = require('log4js')
@@ -29,7 +30,7 @@ const categories = {
 }
 
 // Controllers
-let pa = fs.readdirSync(path.resolve(__dirname, './Controller'));
+let pa = fs.readdirSync(path.resolve(__dirname, './Controller'))
 pa.forEach((ele, index) => {
   let name = path.basename(ele, '.js')
   appenders[name] = {

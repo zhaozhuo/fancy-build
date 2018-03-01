@@ -1,34 +1,45 @@
+'use strict'
 const mysql = require('mysql')
 const db = require('../mysql')
 const logger = require('../logger')('Model')
 
 function htmlspecialchars(str) {
   if (!str || typeof str !== 'string') return str
-  let map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }
+  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }
   return str.replace(/[&<>"']/g, m => map[m])
 }
 function htmlspecialcharsDecode(str) {
   if (!str || typeof str !== 'string') return str
-  let map = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#039;': "'" }
+  const map = { '&amp;': '&', '&lt;': '<', '&gt;': '>', '&quot;': '"', '&#039;': "'" }
   return str.replace(/&amp;|&lt;|&gt;|&quot;|&#039;/g, m => map[m])
 }
-
-function safeEscape(data, specialchars = true) {
-  if (!specialchars) {
-    return mysql.escape(data)
+function strEscape(str, specialchars = true) {
+  return mysql.escape(specialchars ? htmlspecialchars(str) : str)
+}
+function jsonEscape(json, specialchars = true) {
+  for (let i in json) {
+    if (typeof json[i] === 'object') json[i] = jsonEscape(json[i], specialchars)
+    else json[i] = strEscape(json[i], specialchars)
   }
-  if (typeof data === 'object') {
-    if (Array.isArray(data)) {
-      data.forEach(v => v = htmlspecialchars(v))
-    } else {
-      for (let i in data) {
-        data[i] = htmlspecialchars(data[i])
+  return JSON.stringify(json)
+}
+// specialchars boolean array
+function dataEscape(data, specialchars = true, definition = false) {
+  let filter = Array.isArray(specialchars) ? specialchars : []
+  for (let i in data) {
+    if (definition && definition.hasOwnProperty(i)) {
+      let d = definition[i]
+      d.format && (data[i] = d.format(data[i]))
+      if (d.validate) {
+        let valid = d.validate(data[i])
+        if (valid !== true) return valid
       }
     }
-    return mysql.escape(data)
-  } else {
-    return mysql.escape(htmlspecialchars(data))
+    let v = data[i]
+    let y = specialchars ? !filter.includes(i) : false
+    data[i] = typeof v === 'object' ? jsonEscape(v, y) : strEscape(v, y)
   }
+  return data
 }
 
 const alias = {
@@ -49,13 +60,17 @@ function queryWhere(data, field, parents, le = 0) {
   let res = []
   let level = le + 1
   if (['$in', '$notIn'].includes(field)) {
-    return `${parents} ${alias[field]} (${safeEscape(data)})`
+    return `${parents} ${alias[field]} (${strEscape(data)})`
   }
   if (['$like', '$notLike'].includes(field)) {
-    return `${parents} ${alias[field]} ${safeEscape('%' + data + '%')}`
+    return `${parents} ${alias[field]} ${strEscape('%' + data + '%')}`
   }
   if (['$eq', '$ne', '$gte', '$gt', '$lte', '$lt'].includes(field)) {
-    return [parents, safeEscape(data)].join(` ${alias[field]} `)
+    if (data == null) {
+      if ('$eq' === field) return `${parents} IS NULL`
+      if ('$ne' === field) return `${parents} IS NOT NULL`
+    }
+    return [parents, strEscape(data)].join(` ${alias[field]} `)
   }
   if (typeof data === 'object') {
     if (Array.isArray(data)) {
@@ -72,7 +87,7 @@ function queryWhere(data, field, parents, le = 0) {
     }
     return res.length > 1 && level > 1 ? `(${res.join(' AND ')})` : res.join(' AND ')
   }
-  return [field, safeEscape(data)].join(' = ')
+  return [field, strEscape(data)].join(' = ')
 }
 function queryOrder(data) {
   if (typeof data === 'string') {
@@ -116,9 +131,10 @@ function queryOrder(data) {
 
 // Basic MODEL
 class ModelClass {
-  constructor(table) {
+  constructor(table, definition = false) {
     this.model = db.pool
     this.table = db.prefix + table
+    this.definition = definition
     this.queryWhere = queryWhere
     this.queryOrder = queryOrder
     this.htmlspecialchars = htmlspecialchars
@@ -126,17 +142,15 @@ class ModelClass {
   }
 
   // return insertId
-  create(data = {}, callback, htmlEscape = true) {
-    let htmlesc = typeof callback === 'function' ? htmlEscape : callback
-
-    let keys = Object.keys(data)
-    let values = Object.values(data).map(v => {
-      return typeof v == 'object' ? JSON.stringify(safeEscape(v), htmlesc) : safeEscape(v, htmlesc)
-    })
-    let sql = `INSERT INTO ${this.table} (${keys.join(',')}) VALUES (${values.join(',')})`
-    logger.info(sql)
-
+  create(data = {}, callback = true, specialchars = true) {
+    const _data = dataEscape(data, typeof callback === 'function' ? specialchars : callback, this.definition)
     const promise = new Promise((resolve, reject) => {
+      if (typeof _data === 'string') return reject(_data)
+      const keys = Object.keys(_data)
+      const values = Object.values(_data)
+      const sql = `INSERT INTO ${this.table} (${keys.join(',')}) VALUES (${values.join(',')})`
+
+      logger.info(sql)
       this.model.query(sql, (err, res) => {
         if (err) {
           logger.error(err)
@@ -145,21 +159,20 @@ class ModelClass {
         return resolve(res.insertId)
       })
     })
-    if (callback && typeof callback === 'function') {
-      promise.then(callback.bind(null, null), callback)
-    }
+
+    typeof callback === 'function' && promise.then(callback.bind(null, null), callback)
     return promise
   }
 
   // param.field
   // param.values  ex: [ [1,2,3], [3,4,5] ]
   createMultiple(param = {}, callback) {
-    let field = Array.isArray(param.fields) ? param.fields.join(',') : param.fields
-    let values = param.values
-    let sql = `INSERT INTO ${this.table} (${field}) VALUES ?`
-    logger.info(sql)
+    const field = Array.isArray(param.fields) ? param.fields.join(',') : param.fields
+    const values = param.values
+    const sql = `INSERT INTO ${this.table} (${field}) VALUES ?`
 
     const promise = new Promise((resolve, reject) => {
+      logger.info(sql)
       this.model.query(sql, [values], (err, res) => {
         if (err) {
           logger.error(err)
@@ -169,24 +182,22 @@ class ModelClass {
       })
     })
 
-    if (callback && typeof callback == 'function') {
-      promise.then(callback.bind(null, null), callback)
-    }
+    typeof callback == 'function' && promise.then(callback.bind(null, null), callback)
     return promise
   }
 
   // param.data     // {id : 12, name: 'name'}
   // param.where
-  setByWhere(param = {}, callback, htmlEscape = true) {
-    let htmlesc = typeof callback === 'function' ? htmlEscape : callback
-    let values = Object.entries(param.data).map(v => {
-      return v[0] + '=' + (typeof v[1] == 'object' ? JSON.stringify(safeEscape(v[1], htmlesc)) : safeEscape(v[1], htmlesc))
-    })
-    let where = param.where ? ` WHERE ${this.queryWhere(param.where)}` : ''
-    let sql = `UPDATE ${this.table} SET ${values.join(',')}${where}`
-    logger.info(sql)
-
+  setByWhere(param = {}, callback = true, specialchars = true) {
+    console.log(param)
+    const _data = dataEscape(param.data, typeof callback === 'function' ? specialchars : callback, this.definition)
     const promise = new Promise((resolve, reject) => {
+      if (typeof _data === 'string') return reject(_data)
+      const values = Object.entries(_data).map(v => v.join('='))
+      const where = param.where ? ` WHERE ${this.queryWhere(param.where)}` : ''
+      const sql = `UPDATE ${this.table} SET ${values.join(',')}${where}`
+
+      logger.info(sql)
       this.model.query(sql, (err, res) => {
         if (err) {
           logger.error(err)
@@ -195,18 +206,16 @@ class ModelClass {
         return resolve(res.changedRows)
       })
     })
-    if (callback && typeof callback == 'function') {
-      promise.then(callback.bind(null, null), callback)
-    }
+
+    typeof callback == 'function' && promise.then(callback.bind(null, null), callback)
     return promise
   }
 
   // return affectedRows
   deleteByWhere(param = {}, callback) {
-    let sql = `DELETE FROM ${this.table} WHERE ${this.queryWhere(param.data)}`
-    logger.info(sql)
-
+    const sql = `DELETE FROM ${this.table} WHERE ${this.queryWhere(param.data)}`
     const promise = new Promise((resolve, reject) => {
+      logger.info(sql)
       this.model.query(sql, (err, res) => {
         if (err) {
           logger.error(err)
@@ -215,9 +224,7 @@ class ModelClass {
         return resolve(res.affectedRows)
       })
     })
-    if (callback && typeof callback == 'function') {
-      promise.then(callback.bind(null, null), callback)
-    }
+    typeof callback == 'function' && promise.then(callback.bind(null, null), callback)
     return promise
   }
 
@@ -225,13 +232,13 @@ class ModelClass {
   // param.order     // 排序 ｛id: 'desc', 'time': 'asc'}
   // param.fields    // 字段  'id,pid,time'
   getOne(param = {}, callback) {
-    let where = param.where ? ` WHERE ${this.queryWhere(param.where)}` : ''
-    let order = param.order ? ` ORDER BY ${this.queryOrder(param.order)}` : ''
-    let field = Array.isArray(param.fields) ? param.fields.join(',') : (param.fields || '*')
-    let sql = `SELECT ${field} FROM ${this.table}${where}${order} LIMIT 1`
-    logger.info(sql)
+    const where = param.where ? ` WHERE ${this.queryWhere(param.where)}` : ''
+    const order = param.order ? ` ORDER BY ${this.queryOrder(param.order)}` : ''
+    const field = Array.isArray(param.fields) ? param.fields.join(',') : (param.fields || '*')
+    const sql = `SELECT ${field} FROM ${this.table}${where}${order} LIMIT 1`
 
     const promise = new Promise((resolve, reject) => {
+      logger.info(sql)
       this.model.query(sql, (err, res) => {
         if (err) {
           logger.error(err.sqlMessage)
@@ -240,9 +247,7 @@ class ModelClass {
         return resolve(res[0])
       })
     })
-    if (callback && typeof callback == 'function') {
-      promise.then(callback.bind(null, null), callback)
-    }
+    typeof callback == 'function' && promise.then(callback.bind(null, null), callback)
     return promise
   }
 
@@ -312,9 +317,7 @@ class ModelClass {
         })
       }
     })
-    if (callback && typeof callback == 'function') {
-      promise.then(callback.bind(null, null), callback)
-    }
+    typeof callback == 'function' && promise.then(callback.bind(null, null), callback)
     return promise
   }
 
@@ -332,9 +335,7 @@ class ModelClass {
         return resolve(res[0] ? res[0]['COUNT(*)'] : 0)
       })
     })
-    if (callback && typeof callback == 'function') {
-      promise.then(callback.bind(null, null), callback)
-    }
+    typeof callback == 'function' && promise.then(callback.bind(null, null), callback)
     return promise
   }
 }

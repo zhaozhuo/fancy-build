@@ -84,12 +84,11 @@ class Model extends require('./Model.class') {
     try {
       xlsxReader.writeFile(workbook, filepath, { cellStyles: true })
       return filepath
-    }
-    catch (e) {
-      this.logger.error("setXlsxData error:" + e)
+    } catch (e) {
+      this.logger.error('setXlsxData error:' + e)
       return false
     }
   }
-
 }
+
 module.exports = new Model()
