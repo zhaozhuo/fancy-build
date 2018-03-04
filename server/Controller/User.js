@@ -12,6 +12,7 @@ class Application extends require('./Controller.class') {
   constructor(req, response, action) {
     super(req, response)
     this.user = null
+    this[action]()
   }
 
   getList() {

@@ -3,13 +3,11 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 
 const path = require('path')
-const NetworkRoot = '/v1/'
-const PREFIX = '/v1/'
 module.exports = {
   networkRoot: '/v1/',
   prefixName: 'fancy_',
   dev: {
-
+    quiet: false,
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
@@ -19,6 +17,16 @@ module.exports = {
         changeOrigin: true,
         pathRewrite: {
           '^/v1': '/'
+        }
+      },
+      '/mock': {
+        target: 'http://localhost:8080',
+        secure: false,
+        // logLevel: 'debug',
+        // changeOrigin: true,
+        pathRewrite(path, req) {
+          req.method = 'GET'
+          return path + '.json'
         }
       },
     },

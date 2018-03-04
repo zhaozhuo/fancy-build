@@ -44,11 +44,12 @@ const devWebpackConfig = merge(baseWebpackConfig, {
     watchOptions: {
       poll: config.dev.poll,
     },
-    https: {
-      key: fs.readFileSync(path.resolve(__dirname, '../cert/private.key')),
-      cert: fs.readFileSync(path.resolve(__dirname, '../cert/cert.crt')),
-      ca: fs.readFileSync(path.resolve(__dirname, '../cert/csr.pem')),
-    }
+    https: false,
+    // https: {
+    //   key: fs.readFileSync(path.resolve(__dirname, '../cert/private.key')),
+    //   cert: fs.readFileSync(path.resolve(__dirname, '../cert/cert.crt')),
+    //   ca: fs.readFileSync(path.resolve(__dirname, '../cert/csr.pem')),
+    // }
   },
   plugins: [
     new webpack.DefinePlugin({
@@ -71,6 +72,11 @@ const devWebpackConfig = merge(baseWebpackConfig, {
       {
         from: path.resolve(__dirname, '../static'),
         to: config.dev.assetsSubDirectory,
+        ignore: ['.*']
+      },
+      {
+        from: path.resolve(__dirname, '../mock'),
+        to: 'mock',
         ignore: ['.*']
       }
     ])

@@ -1,7 +1,11 @@
 import reqwest from 'reqwest'
 
 function post(param) {
-  param.url = (NETROOT || '') + param.url
+  if (param.mock && DEBUG) {
+    param.url = '/mock/' + param.url
+  } else {
+    param.url = NETROOT + param.url
+  }
   param.type = param.type || 'json'
   param.method = param.method || 'post'
   param.timeout = param.timeout || 5000
@@ -19,7 +23,7 @@ function getScript(src, callback) {
   if (callback) script.onload = callback
 }
 
-export default {
+module.exports = {
   post,
   getScript,
 }

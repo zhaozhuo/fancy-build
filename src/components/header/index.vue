@@ -1,12 +1,17 @@
 <style lang='sass'>
   @import "~styleConfig"
+  $h: 60px
   .header
-    height: 60px
+    height: $h
     background: $colorTheme
+    text-align: center
+    line-height: $h
+    color: #fff
+    font-size: 30px
 </style>
 
 <template lang='pug'>
-  .header
+  .header Fancy Build
 </template>
 
 <script>

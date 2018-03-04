@@ -2,6 +2,7 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import router from './router'
+// ie 10
 require('es6-promise').polyfill()
 require('./css.sass')
 

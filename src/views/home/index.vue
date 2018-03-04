@@ -31,11 +31,9 @@ export default {
   },
   mounted() {
     Network.post({
-      url: 'test',
-      data: JSON.stringify({
-        approved: 'abc',
-      }),
-      contentType: 'application/json',
+      mock: true,
+      url: 'user/getList',
+      data: {},
       success: res => {
         console.log(res)
       },

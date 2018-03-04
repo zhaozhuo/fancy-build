@@ -46,6 +46,7 @@ module.exports = {
   globals: {
     'PREFIX': true,
     'NETROOT': true,
+    'DEBUG': true,
     '$': true,
   }
 }

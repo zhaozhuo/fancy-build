@@ -44,23 +44,3 @@ CREATE TABLE `fb_test` (
   KEY `valid` (`valid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='test';
 
-DROP TABLE IF EXISTS `fb_attachment`;
-CREATE TABLE `fb_attachment` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `uuid` varchar(36) NOT NULL DEFAULT '',
-  `category` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
-  `filepath` varchar(30) NOT NULL DEFAULT '',
-  `filename` varchar(255) NOT NULL DEFAULT '',
-  `filesize` int(10) UNSIGNED NOT NULL DEFAULT '0',
-  `filetype` varchar(10) NOT NULL DEFAULT '',
-  `valid` tinyint(1) UNSIGNED NOT NULL DEFAULT '0',
-  `ctime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `creator` varchar(50) NOT NULL DEFAULT '',
-  `creator_id` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
-  INDEX `category` (`category`),
-  INDEX `ctime` (`ctime`),
-  INDEX `valid` (`valid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='attachment';
-
-
