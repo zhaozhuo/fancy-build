@@ -2,7 +2,11 @@
   "name": "fancy-build",
   "version": "0.1.1",
   "description": "",
-  "author": "crystal",
+  "author": {
+    "name": "denver23",
+    "email": "28240885@qq.com",
+    "url": "https://github.com/denver23"
+  },
   "private": true,
   "scripts": {
     "start": "npm run s.pro",
