@@ -38,10 +38,10 @@ app.use((req, res, next) => {
 // app.use(config.logger())
 // uncomment after placing your favicon in /public
 app.use(favicon(path.join(__dirname, '../favicon.ico')))
-app.use(cookieParser())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
+app.use(cookieParser())
 app.use(session({
   secret: 'fancy',
   resave: true,
@@ -56,15 +56,14 @@ app.use(session({
 app.set('jsonp callback name', config.jsonpCallback || 'callback')
 
 // view engine setup
-app.set('views', path.join(__dirname, '../src/static'))
-app.set('upload', path.join(__dirname, '../upload'))
-app.set('view engine', 'jade')
+app.set('views', path.join(__dirname, '../server/views'))
+app.set('view engine', 'pug')
+
+let $root = express.static(path.join(__dirname, '../dist'))
+app.use('/', $root)
+app.use(/^(?!\/(v1|api)).*?$/, $root)
 
 // routers
-let $root = express.static(path.join(__dirname, '../dist'))
-app.use($root)
-app.use(/^(?!\/v1).*?$/, $root)
-
 app.use('/v1/user', require('../server/Controller/User'))
 
 // catch 404 and forward to error handler
@@ -78,7 +77,7 @@ app.use((req, res, next) => {
 app.use((err, req, res, next) => {
   // set locals, only providing error in development
   res.locals.message = err.message
-  res.locals.error = process.env.NODE_ENV === 'production' ? {} : err
+  res.locals.error = process.env.NODE_ENV === 'development' ? err : {}
   res.status(err.status || 500)
   res.render('error')
 })
