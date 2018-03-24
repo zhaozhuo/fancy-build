@@ -21,13 +21,13 @@ const validator = {
     // return /(?:^\d{15}$)|(?:^\d{17}(?:[0-9]|X)$)/.test(str);
   },
   isUserName(str, min = 2, max = 20) {
-    return !this.isNumeric(str) && str.length >= min && str.length <= max && /^(?!_|\s\')[A-Za-z0-9_\-\x80-\xff\s\']+$/.test(str);
+    return !this.isNumeric(str) && str.length >= min && str.length <= max && /^(?!_|\s\')[A-Za-z0-9_\-\x80-\xff\s\']+$/.test(str)
   },
   isMobile(str) {
     return /^1[3|4|5|7|8][0-9]\d{8}$/.test(str)
   },
   isEmail(str) {
-    return /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/.test(str);
+    return /^\w+((-\w+)|(\.\w+))*@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/.test(str)
   },
   isUid(str) {
     return /^[A-Za-z0-9_\-\u4e00-\u9fa5]+$/.test(str)
@@ -49,7 +49,7 @@ const validator = {
     return str !== '' && decimal.test(str)
   },
   isDate(date) {
-    let a = new Date(typeof date === 'string' ? date.replace(/[-\.]/g, '/') : date)
+    let a = new Date(typeof date === 'string' ? date.replace(/[-.]/g, '/') : date)
     return !isNaN(a) ? a : false
   },
   // 密码强度

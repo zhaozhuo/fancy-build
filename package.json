@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "description": "",
   "author": {
-    "name": "denver23",
+    "name": "denver klein",
     "email": "28240885@qq.com",
     "url": "https://github.com/denver23"
   },
@@ -18,6 +18,7 @@
     "test": "npm run unit && npm run e2e",
     "lint": "eslint --ext .js,.vue src test/unit test/e2e/specs",
     "build": "node build/build.js",
+    "watch": "cross-env NODE_ENV_WATCH=watch node build/build.js",
     "apidoc": "apidoc -i mock"
   },
   "dependencies": {

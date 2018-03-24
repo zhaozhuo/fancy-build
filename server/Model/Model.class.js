@@ -60,7 +60,7 @@ function queryWhere(data, field, parents, le = 0) {
   let res = []
   let level = le + 1
   if (['$in', '$notIn'].includes(field)) {
-    return `${parents} ${alias[field]} (${strEscape(data)})`
+    return `${parents} ${alias[field]} (${data.length ? strEscape(data) : null})`
   }
   if (['$like', '$notLike'].includes(field)) {
     return `${parents} ${alias[field]} ${strEscape('%' + data + '%')}`
@@ -73,9 +73,14 @@ function queryWhere(data, field, parents, le = 0) {
     return [parents, strEscape(data)].join(` ${alias[field]} `)
   }
   if (typeof data === 'object') {
+    if (data === null) return `${field} IS NULL`
     if (Array.isArray(data)) {
-      for (let value of data) {
-        res.push(`${queryWhere(value, false, false, level)}`)
+      if (data.length) {
+        for (let value of data) {
+          res.push(`${queryWhere(value, false, false, level)}`)
+        }
+      } else {
+        res.push(`${queryWhere('', field, false, level)}`)
       }
     } else {
       for (let i in data) {
