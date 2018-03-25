@@ -27,6 +27,10 @@ function jsonEscape(json, specialchars = true) {
 function dataEscape(data, specialchars = true, definition = false) {
   let filter = Array.isArray(specialchars) ? specialchars : []
   for (let i in data) {
+    if (typeof data[i] === 'object' && data[i].hasOwnProperty('$inc')) {
+      data[i] = [i, parseInt(data[i]['$inc']) || 1].join('+')
+      continue
+    }
     if (definition && definition.hasOwnProperty(i)) {
       let d = definition[i]
       d.format && (data[i] = d.format(data[i]))
