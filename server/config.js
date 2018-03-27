@@ -1,5 +1,5 @@
 const path = require('path')
-const env = process.env.NODE_ENV === 'development' ? 'dev' : 'pro'
+const env = process.env.NODE_ENV
 
 const upload = {
   temp: path.resolve(__dirname, '../upload.temp'),
@@ -10,12 +10,12 @@ const cookiePrefix = 'fb_'
 const signExpire = 3600 * 2
 
 const config = {
-  dev: {
+  development: {
     upload,
     cookiePrefix,
     signExpire,
   },
-  pro: {
+  production: {
     upload,
     cookiePrefix,
     signExpire,

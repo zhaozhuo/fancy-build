@@ -1,7 +1,6 @@
-const env = process.env.NODE_ENV === 'development' ? 'dev' : 'pro'
-
+const env = process.env.NODE_ENV
 const config = {
-  dev: {
+  development: {
     port: 8181,
     jsonpCallback: 'callback',
     mysql: {
@@ -22,7 +21,7 @@ const config = {
       password: '',
     },
   },
-  pro: {
+  production: {
     port: 8181,
     jsonpCallback: 'callback',
     mysql: {

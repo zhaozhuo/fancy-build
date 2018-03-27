@@ -16,7 +16,7 @@ class ControllerClass {
     let _key = config.cookiePrefix + key
     return this.req.cookies[_key]
   }
-  setCookie(key, value, option) {
+  setCookie(key, value, option = {}) {
     let {
       expires = new Date(Date.now() + 24 * 3600000),
       path = '/',
