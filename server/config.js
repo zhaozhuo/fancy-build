@@ -1,12 +1,8 @@
-const path = require('path')
+const configServer = require('../config/server')
 const env = process.env.NODE_ENV
 
-const upload = {
-  temp: path.resolve(__dirname, '../upload.temp'),
-  path: path.resolve(__dirname, '../upload'),
-  url: '/upload',
-}
 const cookiePrefix = 'fb_'
+const upload = configServer.upload
 const signExpire = 3600 * 2
 
 const config = {
