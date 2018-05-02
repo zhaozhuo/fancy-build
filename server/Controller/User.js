@@ -6,7 +6,7 @@ const router = express.Router()
 const cname = path.basename(__filename, '.js')
 const logger = require('../logger')(cname)
 
-const UserModel = require('../Model/User.class')
+const UserModel = require('../Model/User.class')(logger)
 
 class Application extends require('./Controller.class') {
   constructor(req, response, action) {
@@ -34,18 +34,14 @@ class Application extends require('./Controller.class') {
 
     _promise.call(this).then(
       res => this.send(res),
-      err => {
-        console.log(err)
-        this.sendError({ msg: err })
-        logger.error(err)
-      }
+      err => this.sendError({ msg: err }) && logger.error(err),
     )
 
     async function _promise() {
       let res = await UserModel.getList({
         page,
         perpage: Math.min(perpage, 100),
-        order: 'utime1 desc',
+        order: 'utime desc',
         count: true,
       })
       return {

@@ -16,7 +16,7 @@ module.exports = {
         target: 'http://localhost:8181',
         changeOrigin: true,
         pathRewrite: {
-          '^/v1': '/'
+          '^/v1': '/v1'
         }
       },
       '/mock': {
