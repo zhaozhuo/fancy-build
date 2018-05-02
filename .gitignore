@@ -2,6 +2,7 @@
 bower_components/
 node_modules/
 /dist/
+/document/apidoc/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

@@ -12,6 +12,11 @@ class ControllerClass {
   send(data) {
     this.response.send(data)
   }
+  sendError(data = {}) {
+    data.code = data.code || '000'
+    this.response.send(data)
+    return true
+  }
   getCookie(key) {
     let _key = config.cookiePrefix + key
     return this.req.cookies[_key]

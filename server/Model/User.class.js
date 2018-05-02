@@ -1,7 +1,7 @@
 // queue short message
 class Model extends require('./Model.class') {
-  constructor() {
-    super(`user`)
+  constructor(logger) {
+    super(`user`, false, logger || false)
   }
 }
-module.exports = new Model()
+module.exports = logger => new Model(logger)

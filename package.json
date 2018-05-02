@@ -5,7 +5,7 @@
   "author": {
     "name": "denver klein",
     "email": "28240885@qq.com",
-    "url": "https://github.com/denver23"
+    "url": "https://github.com/denver23/fancy-build"
   },
   "private": true,
   "scripts": {
@@ -19,7 +19,7 @@
     "lint": "eslint --ext .js,.vue src test/unit test/e2e/specs",
     "build": "node build/build.js",
     "watch": "cross-env NODE_ENV_WATCH=watch node build/build.js",
-    "apidoc": "apidoc -i mock"
+    "apidoc": "apidoc -i server -o document/apidoc/"
   },
   "dependencies": {
     "body-parser": "^1.18.2",

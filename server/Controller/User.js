@@ -15,6 +15,17 @@ class Application extends require('./Controller.class') {
     this[action]()
   }
 
+  /**
+   * @api {post} /user/getList 列表
+   * @apiGroup User
+   * @apiParam {Number} page 页码
+   * @apiParam {Number} perpage 每页显示数量
+   * @apiSuccess {String} code 状态码
+   * @apiSuccess {String} code.100    成功
+   * @apiSuccess {String} code.000    系统错误
+   * @apiSuccess {Array}  data
+   * @apiSuccess {Object} page
+   */
   getList() {
     let {
       page = 1,
@@ -24,8 +35,9 @@ class Application extends require('./Controller.class') {
     _promise.call(this).then(
       res => this.send(res),
       err => {
+        console.log(err)
+        this.sendError({ msg: err })
         logger.error(err)
-        this.send({ code: '000', msg: err })
       }
     )
 
@@ -33,10 +45,9 @@ class Application extends require('./Controller.class') {
       let res = await UserModel.getList({
         page,
         perpage: Math.min(perpage, 100),
-        order: 'utime desc',
+        order: 'utime1 desc',
         count: true,
       })
-
       return {
         code: '100',
         data: res.data,

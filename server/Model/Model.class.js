@@ -16,13 +16,7 @@ function htmlspecialcharsDecode(str) {
 function strEscape(str, specialchars = true) {
   return mysql.escape(specialchars ? htmlspecialchars(str) : str)
 }
-function jsonEscape(json, specialchars = true) {
-  for (let i in json) {
-    if (typeof json[i] === 'object') json[i] = jsonEscape(json[i], specialchars)
-    else json[i] = strEscape(json[i], specialchars)
-  }
-  return JSON.stringify(json)
-}
+
 // specialchars boolean array
 function dataEscape(data, specialchars = true, definition = false) {
   let filter = Array.isArray(specialchars) ? specialchars : []
@@ -41,7 +35,7 @@ function dataEscape(data, specialchars = true, definition = false) {
     }
     let v = data[i]
     let y = specialchars ? !filter.includes(i) : false
-    data[i] = typeof v === 'object' ? jsonEscape(v, y) : strEscape(v, y)
+    data[i] = typeof v === 'object' ? strEscape(JSON.stringify(v), y) : strEscape(v, y)
   }
   return data
 }
@@ -140,7 +134,7 @@ function queryOrder(data) {
 
 // Basic MODEL
 class ModelClass {
-  constructor(table, definition = false) {
+  constructor(table, definition = false, log = false) {
     this.model = db.pool
     this.table = db.prefix + table
     this.definition = definition
@@ -148,6 +142,7 @@ class ModelClass {
     this.queryOrder = queryOrder
     this.htmlspecialchars = htmlspecialchars
     this.htmlspecialcharsDecode = htmlspecialcharsDecode
+    this.logger = log === false ? false : (log || logger)
   }
 
   // return insertId
@@ -159,10 +154,10 @@ class ModelClass {
       const values = Object.values(_data)
       const sql = `INSERT INTO ${this.table} (${keys.join(',')}) VALUES (${values.join(',')})`
 
-      logger.info(sql)
+      this.logger && this.logger.info(sql)
       this.model.query(sql, (err, res) => {
         if (err) {
-          logger.error(err)
+          this.logger && this.logger.error(err)
           return reject(err.code)
         }
         return resolve(res.insertId)
@@ -173,18 +168,27 @@ class ModelClass {
     return promise
   }
 
-  // param.field
+  // param.fields
   // param.values  ex: [ [1,2,3], [3,4,5] ]
+
+  // "fieldCount": 0,
+  // "affectedRows": 5,
+  // "insertId": 1,
+  // "serverStatus": 2,
+  // "warningCount": 0,
+  // "message": "&Records: 5  Duplicates: 0  Warnings: 0",
+  // "protocol41": true,
+  // "changedRows": 0
   createMultiple(param = {}, callback) {
     const field = Array.isArray(param.fields) ? param.fields.join(',') : param.fields
     const values = param.values
     const sql = `INSERT INTO ${this.table} (${field}) VALUES ?`
 
     const promise = new Promise((resolve, reject) => {
-      logger.info(sql)
+      this.logger && this.logger.info(sql)
       this.model.query(sql, [values], (err, res) => {
         if (err) {
-          logger.error(err)
+          this.logger && this.logger.error(err)
           return reject(err.code)
         }
         return resolve(res)
@@ -198,7 +202,6 @@ class ModelClass {
   // param.data     // {id : 12, name: 'name'}
   // param.where
   setByWhere(param = {}, callback = true, specialchars = true) {
-    console.log(param)
     const _data = dataEscape(param.data, typeof callback === 'function' ? specialchars : callback, this.definition)
     const promise = new Promise((resolve, reject) => {
       if (typeof _data === 'string') return reject(_data)
@@ -206,10 +209,10 @@ class ModelClass {
       const where = param.where ? ` WHERE ${this.queryWhere(param.where)}` : ''
       const sql = `UPDATE ${this.table} SET ${values.join(',')}${where}`
 
-      logger.info(sql)
+      this.logger && this.logger.info(sql)
       this.model.query(sql, (err, res) => {
         if (err) {
-          logger.error(err)
+          this.logger && this.logger.error(err)
           return reject(err.code)
         }
         return resolve(res.changedRows)
@@ -222,12 +225,12 @@ class ModelClass {
 
   // return affectedRows
   deleteByWhere(param = {}, callback) {
-    const sql = `DELETE FROM ${this.table} WHERE ${this.queryWhere(param.data)}`
+    const sql = `DELETE FROM ${this.table} WHERE ${this.queryWhere(param.where)}`
     const promise = new Promise((resolve, reject) => {
-      logger.info(sql)
+      this.logger && this.logger.info(sql)
       this.model.query(sql, (err, res) => {
         if (err) {
-          logger.error(err)
+          this.logger && this.logger.error(err)
           return reject(err.code)
         }
         return resolve(res.affectedRows)
@@ -247,13 +250,13 @@ class ModelClass {
     const sql = `SELECT ${field} FROM ${this.table}${where}${order} LIMIT 1`
 
     const promise = new Promise((resolve, reject) => {
-      logger.info(sql)
+      this.logger && this.logger.info(sql)
       this.model.query(sql, (err, res) => {
         if (err) {
-          logger.error(err.sqlMessage)
+          this.logger && this.logger.error(err.sqlMessage)
           return reject(err.code)
         }
-        return resolve(res[0])
+        return resolve(res[0] || null)
       })
     })
     typeof callback == 'function' && promise.then(callback.bind(null, null), callback)
@@ -288,10 +291,10 @@ class ModelClass {
       count ? __count() : __list()
       function __count() {
         let sql = `SELECT COUNT(*) FROM ${self.table}${_where}`
-        logger.info(sql)
+        self.logger && self.logger.info(sql)
         self.model.query(sql, (err, res) => {
           if (err) {
-            logger.error(err)
+            self.logger && self.logger.error(err)
             return reject(err.code)
           }
           count = res[0] ? res[0]['COUNT(*)'] : 0
@@ -308,10 +311,10 @@ class ModelClass {
       }
       function __list(count = 0) {
         let sql = `SELECT ${_field} FROM ${self.table}${_where}${_order} LIMIT ${_start}, ${perpage}`
-        logger.info(sql)
+        self.logger && self.logger.info(sql)
         self.model.query(sql, (err, res) => {
           if (err) {
-            logger.error(err)
+            self.logger && self.logger.error(err)
             return reject(err.code)
           }
           return resolve({
@@ -333,12 +336,12 @@ class ModelClass {
   // return number
   getCount(where = null, callback) {
     let sql = `SELECT COUNT(*) from ${this.table}${where ? ` WHERE ${this.queryWhere(where)}` : ''}`
-    logger.info(sql)
+    this.logger && this.logger.info(sql)
 
     const promise = new Promise((resolve, reject) => {
       this.model.query(sql, (err, res) => {
         if (err) {
-          logger.error(err)
+          this.logger && this.logger.error(err)
           return reject(err.code)
         }
         return resolve(res[0] ? res[0]['COUNT(*)'] : 0)

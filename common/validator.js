@@ -21,7 +21,7 @@ const validator = {
     // return /(?:^\d{15}$)|(?:^\d{17}(?:[0-9]|X)$)/.test(str);
   },
   isUserName(str, min = 2, max = 20) {
-    return !this.isNumeric(str) && str.length >= min && str.length <= max && /^(?!_|\s\')[A-Za-z0-9_\-\x80-\xff\s\']+$/.test(str)
+    return !this.isNumeric(str) && str.length >= min && str.length <= max && /^(?!_|\s')[A-Za-z0-9_\-\x80-\xff\s']+$/.test(str)
   },
   isMobile(str) {
     return /^1[3|4|5|7|8][0-9]\d{8}$/.test(str)

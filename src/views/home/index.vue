@@ -31,7 +31,6 @@ export default {
   },
   mounted() {
     Network.post({
-      mock: true,
       url: 'user/getList',
       data: {},
       success: res => {

@@ -7,11 +7,11 @@
   "sampleUrl": "",
   "header": {
     "title": "Fancy Build",
-    "filename": "document/apidoc/header.md"
+    "filename": "document/apidoc.header.md"
   },
   "footer": {
     "title": "Copyright",
-    "filename": "document/apidoc/footer.md"
+    "filename": "document/apidoc.footer.md"
   },
   "template": {
     "withCompare": true,
