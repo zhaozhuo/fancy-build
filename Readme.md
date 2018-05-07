@@ -1,4 +1,4 @@
-## 互联网+生态
+## FancyBuild 项目构建工具
 
 ### 开发环境
 
@@ -34,6 +34,8 @@ npm config set registry http://r.tnpm.oa.com && npm config set proxy http://r.tn
 
 # install dependencies
 npm install
+
+npm run s.dev
 
 # serve with hot reload at localhost:8080
 npm run dev
