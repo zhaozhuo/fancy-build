@@ -3,17 +3,21 @@ const path = require('path')
 const express = require('express')
 const http = require('http')
 const https = require('https')
+
 // https://github.com/expressjs/morgan
 // https://github.com/iccicci/rotating-file-stream
 const morgan = require('morgan')
 const fileStreamRotator = require('file-stream-rotator')
-const favicon = require('serve-favicon')
+const helmet = require('helmet')
 const compression = require('compression')
 const cookieParser = require('cookie-parser')
+
 const bodyParser = require('body-parser')
 const session = require('express-session')
-// Security
-const helmet = require('helmet')
+const favicon = require('serve-favicon')
+
+// Crontab
+require('../server/Crontab/')
 
 // server
 const config = require('../config/server')
@@ -35,9 +39,8 @@ app.use((req, res, next) => {
   res.setHeader('X-Powered-By', 'Fancy Build')
   next()
 })
-// app.use(config.logger())
-// uncomment after placing your favicon in /public
 app.use(favicon(path.join(__dirname, '../favicon.ico')))
+
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
@@ -52,9 +55,8 @@ app.use(session({
   }
 }))
 
-// app.use(bodyParser({uploadDir:'./uploads'}));
-app.set('jsonp callback name', config.jsonpCallback || 'callback')
 
+app.set('jsonp callback name', config.jsonpCallback || 'callback')
 // view engine setup
 app.set('views', path.join(__dirname, '../server/views'))
 app.set('view engine', 'pug')
