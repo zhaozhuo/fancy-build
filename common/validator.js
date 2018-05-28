@@ -38,7 +38,7 @@ const validator = {
     return /^.*([\W_a-zA-z0-9-])+.*$/i.test(str)
   },
   isLength(str, min = 0, max) {
-    let len = str.length
+    let len = String(str).length
     return len >= min && (typeof max === 'undefined' || len <= max)
   },
   isLowercase(str) {

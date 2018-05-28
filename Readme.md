@@ -1,74 +1,37 @@
-## FancyBuild 项目构建工具
+## Fancy Build 项目构建工具
 
-### 开发环境
+### 环境要求
 
-* python  = v2.7
-* node    > v8.9.4
+* node > v8.9.4
 
-### 开发工具安装插件(以 VSCode 为例)
+### DEMO演示
+
+### 建议IDE安装插件
 
 - Eslint
-- EditorConfig
 - Vetur
 - Sass
-
-> VSCode用户配置增加如下
-``` bash
-  "prettier.printWidth": 200,
-  "prettier.singleQuote": true,
-  "prettier.semi": false,
-  "prettier.trailingComma": "all",
-  "eslint.validate": [
-      "javascript",
-      "javascriptreact",
-      "vue"
-  ]
-```
 
 ## Build Setup
 
 ``` bash
 
-# tnpm install
-npm config set registry http://r.tnpm.oa.com && npm config set proxy http://r.tnpm.oa.com:80
-
-# install dependencies
+# 项目初始化
 npm install
 
+# 后端开发环境服务启动 localhost:8181
 npm run s.dev
 
-# serve with hot reload at localhost:8080
+# 后端正式环境服务启动 localhost:8181
+npm run s.pro 或 npm run start
+
+# 前端开发环境启动
 npm run dev
 
-# build for production with minification
+# 前端代码上线前编译及打包
 npm run build
 
-# build for production and view the bundle analyzer report
-npm run build --report
-
-# run unit tests
-npm run unit
-
-# run e2e tests
-npm run e2e
-
-# run all tests
-npm test
 ```
 
 For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
-
-
-## https证书生成
-
-  mkdir cert
-
-  * 生成私钥key文件
-    openssl genrsa 1024 > cert/private.key
-
-  * 通过私钥文件生成CSR证书签名
-    openssl req -new -key cert/private.key -out cert/csr.pem
-
-  * 通过私钥文件和CSR证书签名生成证书文件
-    openssl x509 -req -days 365 -in cert/csr.pem -signkey cert/private.key -out cert/cert.crt
 

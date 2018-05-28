@@ -12,5 +12,5 @@ const pool = mysql.createPool({
 
 module.exports = {
   pool,
-  prefix: 'fb_',
+  prefix: 'fancy_',
 }

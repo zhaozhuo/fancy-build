@@ -1,7 +1,7 @@
 'use strict'
 // Template version: 1.3.1
 // see http://vuejs-templates.github.io/webpack for documentation.
-
+const server = require('./server.config.json')['development']
 const path = require('path')
 module.exports = {
   networkRoot: '/v1/',
@@ -13,14 +13,14 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/v1': {
-        target: 'http://localhost:8181',
+        target: `http://localhost:${server.port}`,
         changeOrigin: true,
         pathRewrite: {
           '^/v1': '/v1'
         }
       },
       '/mock': {
-        target: 'http://localhost:8080',
+        target: `http://localhost:${server.port}`,
         secure: false,
         // logLevel: 'debug',
         // changeOrigin: true,

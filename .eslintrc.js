@@ -34,7 +34,7 @@ module.exports = {
     'max-len': ['error', 160, 2],
     'no-param-reassign': ['error', { 'props': false }],
     'no-trailing-spaces': ['error', { 'ignoreComments': true }],
-    'space-before-function-paren': ['error', 'never'],
+    'space-before-function-paren': ['error', {'anonymous': 'never', 'named': 'never', 'asyncArrow': 'always'}],
     'comma-dangle': ['error', 'only-multiline'],
     'yoda': 'off',
     'eqeqeq': 'off',

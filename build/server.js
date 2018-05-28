@@ -63,13 +63,8 @@ let $root = express.static(path.join(__dirname, '../dist'))
 app.use('/', $root)
 app.use(/^(?!\/(v1|api)).*?$/, $root)
 
-// apidoc
-if (process.env.NODE_ENV === 'development') {
-  app.use('/apidoc', express.static(path.join(__dirname, '../document/apidoc')))
-}
-
-// routers example
-app.use('/v1/errorCollect', require('../server/Controller/ErrorCollect'))
+// routers
+app.use('/api/user', require('../server/Api/User'))
 app.use('/v1/user', require('../server/Controller/User'))
 
 // catch 404 and forward to error handler

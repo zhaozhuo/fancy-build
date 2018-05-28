@@ -6,7 +6,7 @@ const router = express.Router()
 const cname = path.basename(__filename, '.js')
 const logger = require('../logger')(cname)
 
-const UserModel = require('../Model/User.class')(logger)
+const UserModel = require('../Model/User.class')
 
 class Application extends require('./Controller.class') {
   constructor(req, response, action) {
@@ -33,6 +33,7 @@ class Application extends require('./Controller.class') {
         order: 'utime desc',
         count: true,
       })
+
       return {
         code: '100',
         data: res.data,

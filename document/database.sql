@@ -3,17 +3,10 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
 --
--- Database: `myapp`
+-- Table structure for table `fancy_user`
 --
-
--- --------------------------------------------------------
-
---
--- Table structure for table `fb_user`
---
-
-DROP TABLE IF EXISTS `fb_user`;
-CREATE TABLE `fb_user` (
+DROP TABLE IF EXISTS `fancy_user`;
+CREATE TABLE `fancy_user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `roles` varchar(200) NOT NULL DEFAULT '',
@@ -29,8 +22,8 @@ CREATE TABLE `fb_user` (
   KEY `valid` (`valid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='user';
 
-DROP TABLE IF EXISTS `fb_test`;
-CREATE TABLE `fb_test` (
+DROP TABLE IF EXISTS `fancy_test`;
+CREATE TABLE `fancy_test` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `subject` varchar(200) NOT NULL,
   `content` text DEFAULT NULL,
@@ -43,4 +36,9 @@ CREATE TABLE `fb_test` (
   KEY `ctime` (`ctime`),
   KEY `valid` (`valid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='test';
+
+INSERT INTO `fancy_user` (`name`, `roles`, `age`, `birthday`, `ctime`, `utime`, `version`, `valid`) VALUES
+('张三', '1', '23', NULL, now(), now(), '0', '1'),
+('李四', '1', '24', NULL, now(), now(), '0', '1'),
+('王五', '1', '25', NULL, now(), now(), '0', '1');
 

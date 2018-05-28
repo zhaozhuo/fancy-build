@@ -30,7 +30,7 @@ const categories = {
 }
 
 // Controllers
-getByDirectory('Controller')
+getByDirectory('Api')
 
 log4js.configure({
   appenders,
@@ -45,7 +45,7 @@ function getByDirectory(dirname) {
     let name = path.basename(ele, '.js')
     appenders[name] = {
       type: 'dateFile',
-      filename: `${root}/${name}`,
+      filename: `${root}/Api.${name}`,
       pattern: '.yyyyMMdd.log',
       alwaysIncludePattern: true,
       maxLogSize: 1024,
