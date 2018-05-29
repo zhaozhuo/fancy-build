@@ -1,4 +1,5 @@
 'use strict'
+// @2018-05-30
 const mysql = require('mysql')
 const db = require('../mysql')
 const logger = require('../logger')('Model')
