@@ -1,4 +1,4 @@
-## Fancy Build 项目构建工具
+## Fancy Service Nodejs服务构建工具
 
 ### 环境要求
 
